@@ -8,6 +8,6 @@ eqwt_influence_fn <- function(a, y, e_hat, w_hat = 1, mu_hat, truncation_pt = me
     nn <- length(y)
     adj_term <- 1/pi_hat*mean((y - mu_hat)*k)*(1 - n_hat/nn)
   } else adj_term <- 0
-  a*y/e_hat + (1 - a*w_hat/e_hat)*mu_hat + adj_term
+  w_hat*(a*y/e_hat + (1 - a/e_hat)*mu_hat + adj_term)
 }
 
