@@ -26,7 +26,7 @@ estimate_eqwt_tmle <- function(data, a, y, w = NULL, e, mu, truncation_pt, adapt
                                                adaptive = adaptive
                     ))
   tmle_ds <- dplyr::mutate(if_data,
-                    !!e := pmin(pmax(e, truncation_pt), 1-truncation_pt),
+                    !!e := pmin(pmax(!!rlang::sym(e), truncation_pt), 1-truncation_pt),
                     h = !!rlang::sym(a)/!!rlang::sym(e))
   tmle_fm <- as.formula(glue::glue('{y} ~ -1 + offset(qlogis({mu})) + h'))
   tmle_fit <- glm(tmle_fm, data = tmle_ds, family = binomial)

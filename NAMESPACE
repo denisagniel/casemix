@@ -2,4 +2,4 @@
 
 export(estimate_eqwt_plugin)
 export(estimate_eqwt_tmle)
-export(sim_inds)
+export(simulate_data)
