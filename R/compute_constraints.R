@@ -41,7 +41,6 @@ compute_constraints <- function(data, wvars, epsilon = 0) {
   half_Amat <- select(half_Amat, -any_of(wvars))
 
   pp <- nrow(half_Amat)
-  browser()
   ##########################
   ## set up the constraint matrix
   Amat <- as.matrix(cbind(
@@ -56,5 +55,5 @@ compute_constraints <- function(data, wvars, epsilon = 0) {
   bvec <- c(1 - epsilon, -1 - epsilon, ks - epsilon, -ks - epsilon, rep(0, pp))
 
 
-  return(list(Amat = Amat, bvec = bvec))
+  return(list(Amat = Amat, bvec = bvec, pmf_ds = wxfW_ds))
 }
