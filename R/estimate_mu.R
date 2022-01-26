@@ -11,7 +11,7 @@ estimate_mu <- function(data, folds, id, x, y, a, lrnr, task_name = 'mu') {
   all_folds <- pull(data, folds)
   unique_folds <- unique(all_folds)
   predictions <- map_df(unique_folds,
-                        ~learn_fold_prob(task = this_task,
+                        ~learn_fold_mu(task = this_task,
                                          train_ids = which(all_folds != .),
                                          test_ids = which(all_folds == .),
                                          lrnr = lrnr,
@@ -22,14 +22,14 @@ estimate_mu <- function(data, folds, id, x, y, a, lrnr, task_name = 'mu') {
 }
 
 
-learn_fold_prob <- function(task, train_ids, test_ids, lrnr, a, avals = NULL) {
+learn_fold_mu <- function(task, train_ids, test_ids, lrnr, a, avals = NULL) {
   lrnr$train(task, row_ids = train_ids)
   if (is.null(avals)) avals <- task$data() %>% pull(!!sym(a)) %>% unique
-  mus <- map(avals, ~predict_unit(lrnr, task, task$data(test_ids), test_ids, a, .))
+  mus <- map(avals, ~predict_unit_mu(lrnr, task, task$data(test_ids), test_ids, a, .))
   reduce(mus, inner_join)
 }
 
-predict_unit <- function(lrnr, task, data, ids, a, aval) {
+predict_unit_mu <- function(lrnr, task, data, ids, a, aval) {
   new_ds <- data %>% mutate(!!a := aval)
   predicted_vals <- lrnr$predict_newdata(task, newdata = new_ds)
   tibble(id = ids, !!glue('mu_{aval}') := predicted_vals$prob[,2])
