@@ -1,5 +1,6 @@
-estimate_equity_wts <- function(data, phis, wvars, epsilon = 1e-6) {
+estimate_equity_wts <- function(data, avals, wvars, epsilon = 1e-6) {
   constraints_list <- compute_constraints(data, wvars, epsilon)
+  phis <- paste0('phi_', avals)
   phi_reformat <- reformat_phis(data, phis, wvars, constraints_list$pmf_ds)
   qp_sln <- quadprog::solve.QP(Dmat = diag(phi_reformat$phi_w),
                                Amat = constraints_list$Amat,
