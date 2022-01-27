@@ -2,12 +2,27 @@ estimate_equity_wts <- function(data, avals, wvars, epsilon = 1e-6) {
   constraints_list <- compute_constraints(data, wvars, epsilon)
   phis <- paste0('phi_', avals)
   phi_reformat <- reformat_phis(data, phis, wvars, constraints_list$pmf_ds)
-  qp_sln <- quadprog::solve.QP(Dmat = diag(phi_reformat$phi_w),
+  qp_sln <- try(quadprog::solve.QP(Dmat = diag(phi_reformat$phi_w),
                                Amat = constraints_list$Amat,
                                bvec = constraints_list$bvec,
-                               dvec = rep(0, nrow(phi_reformat)))
+                               dvec = rep(0, nrow(phi_reformat))), silent = TRUE)
+
+  #################################
+  ## trying something
+  g <- t(constraints_list$Amat)
+  h <- constraints_list$bvec
+  cc <- rep(1, ncol(g))
+  pmf_ds <- constraints_list$pmf_ds
+  pmf_ds <- pmf_ds %>%
+    mutate(base_wt = 1/nrow(pmf_ds)/f)
+
+  lim_eq <- limSolve::linp(G = g, H = h, Cost = cc)
+  lim_f <- limSolve::linp(G = g, H = h, Cost = pmf_ds$base_wt)
+  ##################################
+
+  if (class(qp_sln) == 'try-error') browser()
   xi_ds <- select(phi_reformat, all_of(wvars))
-  xi_ds <- mutate(xi_ds, equity_wt = qp_sln$solution)
+  xi_ds <- mutate(xi_ds, equity_wt = qp_sln$solution, alt_wt1 = lim_eq$X, alt_wt2 = lim_f$X)
   left_join(data, xi_ds)
 }
 

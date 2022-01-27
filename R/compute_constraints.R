@@ -54,6 +54,8 @@ compute_constraints <- function(data, wvars, epsilon = 0) {
   ks <- unlist(map(k_j, function(k) rep(1/k, k)))
   bvec <- c(1 - epsilon, -1 - epsilon, ks - epsilon, -ks - epsilon, rep(0, pp))
 
+  tst <- try(limSolve::ldp(t(Amat), bvec), silent = TRUE)
+  if (class(tst) == 'try-error') browser()
 
   return(list(Amat = Amat, bvec = bvec, pmf_ds = wxfW_ds))
 }

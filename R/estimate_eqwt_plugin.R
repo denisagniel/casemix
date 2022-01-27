@@ -38,7 +38,11 @@ estimate_eqwt_plugin <- function(data,
   ests <- dplyr::summarise_at(ds,
                       all_of(phis),
             list(pluginest = ~mean(.*equity_wt),
-            se = ~sqrt(var(.*equity_wt)/dplyr::n())))
+                 pluginest2 = ~mean(.*alt_wt1),
+                 pluginest3 = ~mean(.*alt_wt2),
+            se = ~sqrt(var(.*equity_wt)/dplyr::n()),
+            se2 = ~sqrt(var(.*alt_wt1)/dplyr::n()),
+            se3 = ~sqrt(var(.*alt_wt2)/dplyr::n())))
   pivot_longer(ests, cols = everything()) %>%
     separate(name, into = c('phi', a, 'type'), sep = '_') %>%
     select(-phi) %>%
