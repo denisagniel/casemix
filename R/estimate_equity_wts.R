@@ -1,28 +1,44 @@
-estimate_equity_wts <- function(data, avals, wvars, epsilon = 1e-6) {
+#' Estimate weights that obey marginal balance constraints on protected characteristics.
+#'
+#' These weights ensure that each characteristic represented by a variable in `wvars` is balanced in the weighted population.
+#'
+#' @param data data.frame containing the information to analyze
+#' @param a optional string identifying the column in `data` that denotes the units of interest; if not provided, must provide `avals`
+#' @param avals optional string identifying unique values of `a` found in the data; if not provided, must provide `a`
+#' @param wvars string vector identifying the columns in `data` that denote the protected characteristics
+#' @param epsilon positive scalar that indicates the amount that the optimization is allowed to deviate from the required constraints
+#'
+#'
+#' @export
+estimate_equity_wts <- function(data, a = NULL, avals = NULL,  wvars, epsilon = 1e-6) {
   constraints_list <- compute_constraints(data, wvars, epsilon)
+  if (is.null(avals)) {
+    if (is.null(a)) {
+      stop('Must provide either `a` or `avals`.')
+    } else avals <- unique(pull(data, !!sym(a)))
+  }
   phis <- paste0('phi_', avals)
   phi_reformat <- reformat_phis(data, phis, wvars, constraints_list$pmf_ds)
-  qp_sln <- try(quadprog::solve.QP(Dmat = diag(phi_reformat$phi_w),
-                               Amat = constraints_list$Amat,
-                               bvec = constraints_list$bvec,
-                               dvec = rep(0, nrow(phi_reformat))), silent = TRUE)
+  qp_sln <- try(quadprog::solve.QP(Dmat = diag(phi_reformat$phi_w/sum(phi_reformat$phi_w)),
+                                   Amat = constraints_list$Amat,
+                                   bvec = constraints_list$bvec,
+                                   dvec = rep(0, nrow(phi_reformat))), silent = TRUE)
 
   #################################
   ## trying something
   g <- t(constraints_list$Amat)
   h <- constraints_list$bvec
-  cc <- rep(1, ncol(g))
+  a <- diag(ncol(g))
+  b <- rep(1/ncol(g), ncol(g))
   pmf_ds <- constraints_list$pmf_ds
-  pmf_ds <- pmf_ds %>%
-    mutate(base_wt = 1/nrow(pmf_ds)/f)
 
-  lim_eq <- limSolve::linp(G = g, H = h, Cost = cc)
-  lim_f <- limSolve::linp(G = g, H = h, Cost = pmf_ds$base_wt)
+  lsei_eq <- limSolve::lsei(A = a, B = b, G = g, H = h)
+  lsei_f <- limSolve::lsei(A = a, B = pmf_ds$f, G = g, H = h)
   ##################################
 
   if (class(qp_sln) == 'try-error') browser()
   xi_ds <- select(phi_reformat, all_of(wvars))
-  xi_ds <- mutate(xi_ds, equity_wt = qp_sln$solution, alt_wt1 = lim_eq$X, alt_wt2 = lim_f$X)
+  xi_ds <- mutate(xi_ds, equity_wt = qp_sln$solution, alt_wt1 = lsei_eq$X, alt_wt2 = lsei_f$X)
   left_join(data, xi_ds)
 }
 
