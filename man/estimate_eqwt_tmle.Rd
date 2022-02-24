@@ -4,21 +4,14 @@
 \alias{estimate_eqwt_tmle}
 \title{TMLE estimator for unit quality.}
 \usage{
-estimate_eqwt_tmle(
-  data,
-  a,
-  y,
-  w = NULL,
-  e,
-  mu,
-  truncation_pt,
-  adaptive = FALSE
-)
+estimate_eqwt_tmle(data, a, aval, y, w = NULL, e, mu, truncation_pt = 1e-12)
 }
 \arguments{
 \item{data}{data.frame containing the information to analyze}
 
-\item{a}{string identifying the column in `data` that denotes the binary variable indicating the unit of interest}
+\item{a}{string identifying the column in `data` that denotes the units of interest}
+
+\item{aval}{string identifying the particular unit being estimated}
 
 \item{y}{string identifying the column in `data` that denotes the outcome of interest}
 
@@ -27,10 +20,6 @@ estimate_eqwt_tmle(
 \item{e}{string identifying the column in `data` that denotes the propensity score}
 
 \item{mu}{string identifying the column in `data` that denotes the mean function}
-
-\item{truncation_pt}{a number in (0,1) to which the propensity score is truncated}
-
-\item{adaptive}{logical flag of whether to use the adaptive normalization of Khan and Ugander (2021)}
 }
 \description{
 TMLE estimator for unit quality.

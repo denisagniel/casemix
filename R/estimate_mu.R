@@ -1,15 +1,18 @@
 estimate_mu <- function(data, folds, id, x, y, a, lrnr, task_name = 'mu', separate = TRUE, tune = TRUE, evals = 20, callibrate = TRUE) {
-
   if (lrnr$predict_type != 'prob') lrnr$predict_type <- 'prob'
-  data <- mutate(data, row_id = 1:nrow(data))
-  data <- mutate_if(data, is.character, as.factor)
+  data <- mutate(data, row_id = 1:nrow(data)) ## create an internal id with known characteristics
+  data <- mutate_if(data, is.character, as.factor) ## character vectors aren't typically allowed
 
+  ############################
+  ## identify the task for mlr3
   xy_dat <- select(data, any_of(c(a, x, y)))
   if (!inherits(pull(xy_dat, !!y), 'factor')) {
     xy_dat <- mutate_at(xy_dat, vars(y), as.factor)
   }
   this_task <- mlr3::as_task_classif(xy_dat, target = y, id = task_name, twoclass = TRUE)
 
+  ##########################
+  ## this is a first pass at this - we may want to be more intentional about how the tuning is done
   if (tune) {
     if (lrnr$id == 'classif.kknn') {
       ts <- lts('classif.kknn.rbv2')
@@ -42,6 +45,8 @@ estimate_mu <- function(data, folds, id, x, y, a, lrnr, task_name = 'mu', separa
     lrnr$param_set$values = instance$result_learner_param_vals
   }
 
+  ####################
+  ## estimate on K-1 folds and predict on the other fold
   all_folds <- pull(data, folds)
   unique_folds <- unique(all_folds)
   predictions <- map_df(unique_folds,
