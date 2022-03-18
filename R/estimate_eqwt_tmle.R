@@ -12,7 +12,7 @@
 
 estimate_eqwt_tmle <- function(data, a, aval, y, w = NULL, e, mu, truncation_pt = 1e-12) {
   if (is.null(w)) {
-    dplyr::mutate(data, w = 1)
+    data <- dplyr::mutate(data, w = 1)
     w <- 'w'
   }
   if_data <- dplyr::mutate(data,
