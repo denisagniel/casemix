@@ -1,4 +1,4 @@
-#' Plug-in estimator for unit quality.
+#' Workhorse function for plug-in estimator. Intended to be wrapped by `popwt_plugin` and `eqwt_plugin`.
 #'
 #' @param data data.frame containing the information to analyze
 #' @param folds optional string identifying the column in `data` that denotes the folds for cross-fitting
@@ -18,11 +18,11 @@
 #' @param callibrate_e logical flag for whether propensity scores should be callibrated after fitting
 #' @param callibrate_mu logical flag for whether mean functions should be callibrated after fitting
 #'
-#' @export
-eqwt_plugin <- function(data,
-                        folds = NULL,
+estimate_wtd_plugin <- function(ds,
+                        folds,
                         id,
                         a, y, wvars, zvars,
+                        wt,
                         truncation_pt = 1e-7,
                         adaptive = FALSE,
                         K = 2,
@@ -33,45 +33,29 @@ eqwt_plugin <- function(data,
                         tune = FALSE,
                         callibrate_e = FALSE,
                         callibrate_mu = FALSE) {
-  if (is.null(folds)) {
-    ds <- make_folds(data, a, K)
-    folds <- 'fold'
-  } else ds <- data
+  ####################
+  ## estimate nuisance functions
+  ds <- left_join(ds,
+                  estimate_e(ds, folds, id, c(wvars, zvars), a, lrnr, separate = separate_e, tune = tune, callibrate = callibrate_e), by = id)
+  ds <- left_join(ds,
+                  estimate_mu(ds, folds, id, c(wvars, zvars), y, a, lrnr, separate = separate_mu, tune = tune, callibrate = callibrate_mu), by = id)
+
+  ds <- estimate_phi(ds, a, y, truncation_pt = truncation_pt)
+  # browser()
+  avals <- unique(dplyr::pull(ds, !!sym(a)))
+  phis <- paste0('phi_', avals)
+  ests <- dplyr::summarise_at(ds,
+                              all_of(phis),
+                              list(pluginest = ~mean(.*!!sym(wt)),
+                                   se = ~sqrt(var(.*!!sym(wt))/dplyr::n())))
+
+  out <- pivot_longer(ests, cols = everything()) %>%
+    separate(name, into = c('phi', a, 'type'), sep = '_') %>%
+    select(-phi) %>%
+    pivot_wider(id_cols = a, names_from = type, values_from = value)
 
 
-  ds <- estimate_equity_wts(ds, folds = folds,
-                            id = id,
-                            wvars = wvars,
-                            zvars = zvars,
-                            a = a,
-                            y = y,
-                            lrnr = lrnr,
-                            separate_e = separate_e,
-                            separate_mu = separate_mu,
-                            epsilon = epsilon,
-                            tune = tune,
-                            evals = evals,
-                            callibrate_e = callibrate_e,
-                            callibrate_mu = callibrate_mu,
-                            sub_k = K,
-                            truncation_pt = truncation_pt)
-
-  eqwt_ds <- unique(select(ds, all_of(wvars), equity_wt))
-  out <- estimate_wtd_plugin(ds, folds = folds,
-                             id = id,
-                             wt = 'equity_wt',
-                             wvars = wvars,
-                             zvars = zvars,
-                             a = a,
-                             y = y,
-                             lrnr = lrnr,
-                             separate_e = separate_e,
-                             separate_mu = separate_mu,
-                             epsilon = epsilon,
-                             tune = tune,
-                             callibrate_e = callibrate_e,
-                             callibrate_mu = callibrate_mu,
-                             truncation_pt = truncation_pt)
-  mutate(out,
-         wt_ds = list(eqwt_ds))
+  ##########################
+  ## calculate reliability and shrunken estimators
+  shrink_estimates(out, 'pluginest', 'se')
 }
