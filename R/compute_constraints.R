@@ -27,13 +27,13 @@ compute_constraints <- function(data, wvars, epsilon = 0) {
     for (i in 1:nrow(distinct_w)) {
       distinct_w <- mutate(distinct_w, !!these_nms[i] := 1*(!!sym(w) == these_vals[i]))
     }
-    wfW <- left_join(f_ds, distinct_w)
+    wfW <- left_join(f_ds, distinct_w, by = w)
 
     ########################
     ## multiply the binary indicators by the pmf
     mutate_at(wfW, these_nms, ~.*f)
   })
-  wxfW_ds <- reduce(wxfW, full_join)
+  wxfW_ds <- reduce(wxfW, full_join, by = c(wvars, 'n', 'f'))
   wxfW_ds <- select(wxfW_ds, all_of(wvars), f, starts_with(wvars))
   ##########################
   ## create a matrix that identifies w_j * f_W(w)

@@ -1,6 +1,6 @@
 callibrate_mu <- function(predictions, data, a, y, folds) {
   a_ds <- predictions %>%
-    inner_join(data %>% select(row_id, !!folds, !!a, !!y)) %>%
+    inner_join(data %>% select(row_id, !!folds, !!a, !!y), by = 'row_id') %>%
     mutate(!!folds := as.factor(!!sym(folds)))
   avals <- a_ds %>% pull(!!a) %>% unique
   new_predix <- map(avals, function(aa) {
@@ -8,7 +8,7 @@ callibrate_mu <- function(predictions, data, a, y, folds) {
     transmute(predictions, row_id = row_id,
               !!glue('mu_{aa}') := predict(fit, newdata = a_ds, type = 'response'))
   })
-  out <- purrr::reduce(new_predix, inner_join)
+  out <- purrr::reduce(new_predix, inner_join, by = 'row_id')
   out
 }
 

@@ -71,7 +71,7 @@ learn_fold_mu <- function(task, train_ids, test_ids, lrnr, a, avals = NULL) {
   lrnr$train(task, row_ids = train_ids)
   if (is.null(avals)) avals <- task$data() %>% pull(!!sym(a)) %>% unique
   mus <- map(avals, ~predict_unit_mu(lrnr, task, task$data(test_ids), test_ids, a, .))
-  reduce(mus, inner_join)
+  reduce(mus, inner_join, by = 'row_id')
 }
 
 predict_unit_mu <- function(lrnr, task, data, ids, a, aval) {

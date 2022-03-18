@@ -65,7 +65,7 @@ estimate_e <- function(data, folds, id, x, a, lrnr, task_name = 'e', separate = 
                                               lrnr = lrnr,
                                               a = aa))
     })
-    predictions <- purrr::reduce(pred_js, inner_join)
+    predictions <- purrr::reduce(pred_js, inner_join, by = 'row_id')
   }
 
   if (callibrate) {
@@ -73,7 +73,7 @@ estimate_e <- function(data, folds, id, x, a, lrnr, task_name = 'e', separate = 
   }
   out_ds <- inner_join(data, predictions, by = 'row_id')
 
-  select(out_ds, !!id, starts_with('e'))
+  select(out_ds, !!id, starts_with('e_'))
 }
 
 
@@ -83,7 +83,8 @@ learn_fold_e <- function(task, train_ids, test_ids, lrnr, a) {
   avals <- unique(pull(task$data(), !!a))
   es <- map(avals, ~tibble(row_id = test_ids,
                            !!glue('e_{.}') := predicted_vals$prob[,.]))
-  reduce(es, inner_join)
+  purrr::reduce(es, inner_join, by = 'row_id')
+  # reduce(es, inner_join)
 }
 
 learn_fold_e_separate <- function(task, train_ids, test_ids, lrnr, aa) {
