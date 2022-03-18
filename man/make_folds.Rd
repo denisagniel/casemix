@@ -4,7 +4,7 @@
 \alias{make_folds}
 \title{Split dataset into folds.}
 \usage{
-make_folds(data, unit_id, K)
+make_folds(data, unit_id, K, fold_name = "fold")
 }
 \arguments{
 \item{data}{data.frame containing the information to analyze}
