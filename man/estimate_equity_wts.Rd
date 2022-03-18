@@ -4,18 +4,36 @@
 \alias{estimate_equity_wts}
 \title{Estimate weights that obey marginal balance constraints on protected characteristics.}
 \usage{
-estimate_equity_wts(data, a = NULL, avals = NULL, wvars, epsilon = 1e-06)
+estimate_equity_wts(
+  data,
+  folds,
+  id,
+  wvars,
+  zvars,
+  a,
+  y,
+  lrnr,
+  separate_e = TRUE,
+  separate_mu = TRUE,
+  epsilon = 1e-12,
+  tune = FALSE,
+  evals = 20,
+  callibrate_e = TRUE,
+  callibrate_mu = TRUE,
+  sub_k = 2,
+  truncation_pt = 1e-07
+)
 }
 \arguments{
 \item{data}{data.frame containing the information to analyze}
 
-\item{a}{optional string identifying the column in `data` that denotes the units of interest; if not provided, must provide `avals`}
-
-\item{avals}{optional string identifying unique values of `a` found in the data; if not provided, must provide `a`}
-
 \item{wvars}{string vector identifying the columns in `data` that denote the protected characteristics}
 
+\item{a}{optional string identifying the column in `data` that denotes the units of interest; if not provided, must provide `avals`}
+
 \item{epsilon}{positive scalar that indicates the amount that the optimization is allowed to deviate from the required constraints}
+
+\item{avals}{optional string identifying unique values of `a` found in the data; if not provided, must provide `a`}
 }
 \description{
 These weights ensure that each characteristic represented by a variable in `wvars` is balanced in the weighted population.
