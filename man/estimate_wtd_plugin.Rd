@@ -2,7 +2,7 @@
 % Please edit documentation in R/estimate_wtd_plugin.R
 \name{estimate_wtd_plugin}
 \alias{estimate_wtd_plugin}
-\title{Plug-in estimator for unit quality.}
+\title{Workhorse function for plug-in estimator. Intended to be wrapped by `popwt_plugin` and `eqwt_plugin`.}
 \usage{
 estimate_wtd_plugin(
   ds,
@@ -38,6 +38,8 @@ estimate_wtd_plugin(
 
 \item{zvars}{string vector identifying the columns in `data` that denote the control (non-protected) characteristics}
 
+\item{wt}{string vector identifying the column in `data` that denotes the observation weights}
+
 \item{truncation_pt}{a number in (0,1) to which the propensity score is truncated (from above and below)}
 
 \item{adaptive}{logical flag of whether to use the adaptive normalization of Khan and Ugander (2021)}
@@ -61,5 +63,5 @@ estimate_wtd_plugin(
 \item{data}{data.frame containing the information to analyze}
 }
 \description{
-Plug-in estimator for unit quality.
+Workhorse function for plug-in estimator. Intended to be wrapped by `popwt_plugin` and `eqwt_plugin`.
 }

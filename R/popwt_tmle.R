@@ -1,4 +1,4 @@
-#' TMLE estimator for unit quality.
+#' TMLE for unit quality.
 #'
 #' @param data data.frame containing the information to analyze
 #' @param folds optional string identifying the column in `data` that denotes the folds for cross-fitting
@@ -17,52 +17,37 @@
 #' @param tune logical flag for whether tuning should be performed on the learners before estimating nuisance functions
 #' @param callibrate_e logical flag for whether propensity scores should be callibrated after fitting
 #' @param callibrate_mu logical flag for whether mean functions should be callibrated after fitting
+#' @param include_unweighted logical flag for whether to also estimate a non-equity-weighted version of the estimator
 #'
 #' @export
-#'
-eqwt_tmle <- function(data,
-                      folds = NULL,
-                      id,
-                      a, y, wvars, zvars,
-                      truncation_pt = 1e-7,
-                      adaptive = FALSE,
-                      K = 2,
-                      lrnr = lrn('classif.ranger'),
-                      separate_e = TRUE,
-                      separate_mu = TRUE,
-                      epsilon = 1e-12,
-                      tune = FALSE,
-                      callibrate_e = FALSE,
-                      callibrate_mu = FALSE) {
+popwt_tmle <- function(data,
+                       folds = NULL,
+                       id,
+                       a, y, wvars, zvars,
+                       truncation_pt = 1e-7,
+                       adaptive = FALSE,
+                       K = 2,
+                       lrnr = lrn('classif.ranger'),
+                       separate_e = TRUE,
+                       separate_mu = TRUE,
+                       epsilon = 1e-12,
+                       tune = FALSE,
+                       callibrate_e = FALSE,
+                       callibrate_mu = FALSE,
+                       include_unweighted = FALSE) {
   if (is.null(folds)) {
     ds <- make_folds(data, a, K)
     folds <- 'fold'
   } else ds <- data
 
-  ds <- estimate_equity_wts(ds, folds = folds,
-                            id = id,
-                            wvars = wvars,
-                            zvars = zvars,
-                            a = a,
-                            y = y,
-                            lrnr = lrnr,
-                            separate_e = separate_e,
-                            separate_mu = separate_mu,
-                            epsilon = epsilon,
-                            tune = tune,
-                            evals = evals,
-                            callibrate_e = callibrate_e,
-                            callibrate_mu = callibrate_mu,
-                            sub_k = K,
-                            truncation_pt = truncation_pt)
 
-  eqwt_ds <- unique(select(ds, all_of(wvars), equity_wt))
-
+  ds <- ds %>%
+    mutate(wt = rep(1, nrow(ds)))
   out <- estimate_wtd_tmle(ds, folds = folds,
                              id = id,
+                             wt = 'wt',
                              wvars = wvars,
                              zvars = zvars,
-                           wt = 'equity_wt',
                              a = a,
                              y = y,
                              lrnr = lrnr,
@@ -73,12 +58,5 @@ eqwt_tmle <- function(data,
                              callibrate_e = callibrate_e,
                              callibrate_mu = callibrate_mu,
                              truncation_pt = truncation_pt)
-
-
-
-  ##########################
-  ## calculate reliability and shrunken estimators
-  out <- shrink_estimates(out, 'tmle_est', 'est_se')
-  mutate(out,
-         wt_ds = list(eqwt_ds))
+  shrink_estimates(out, 'tmle_est', 'est_se')
 }
