@@ -16,8 +16,8 @@
 #' @param separate_mu logical flag for whether mean functions for each unit should be estimated separately or in a big joint model
 #' @param epsilon positive scalar that indicates the amount that the optimization of equity balance constraints is allowed to deviate from the required constraints
 #' @param tune logical flag for whether tuning should be performed on the learners before estimating nuisance functions
-#' @param callibrate_e logical flag for whether propensity scores should be callibrated after fitting
-#' @param callibrate_mu logical flag for whether mean functions should be callibrated after fitting
+#' @param calibrate_e logical flag for whether propensity scores should be calibrated after fitting
+#' @param calibrate_mu logical flag for whether mean functions should be calibrated after fitting
 #' @param include_unweighted logical flag for whether to also estimate a non-equity-weighted version of the estimator
 #'
 estimate_wtd_tmle <- function(ds,
@@ -33,15 +33,15 @@ estimate_wtd_tmle <- function(ds,
                                 separate_mu = TRUE,
                                 epsilon = 1e-12,
                                 tune = FALSE,
-                                callibrate_e = FALSE,
-                                callibrate_mu = FALSE,
+                                calibrate_e = FALSE,
+                                calibrate_mu = FALSE,
                               include_unweighted = TRUE) {
   ####################
   ## estimate nuisance functions
   ds <- left_join(ds,
-                  estimate_e(ds, folds, id, c(wvars, zvars), a, lrnr, separate = separate_e, tune = tune, callibrate = callibrate_e), by = id)
+                  estimate_e(ds, folds, id, c(wvars, zvars), a, lrnr, separate = separate_e, tune = tune, calibrate = calibrate_e), by = id)
   ds <- left_join(ds,
-                  estimate_mu(ds, folds, id, c(wvars, zvars), y, a, lrnr, separate = separate_mu, tune = tune, callibrate = callibrate_mu), by = id)
+                  estimate_mu(ds, folds, id, c(wvars, zvars), y, a, lrnr, separate = separate_mu, tune = tune, calibrate = calibrate_mu), by = id)
   avals <- unique(pull(ds, all_of(a)))
   out <- map_df(avals, ~estimate_unit_tmle(data = ds,
                                            a = a,

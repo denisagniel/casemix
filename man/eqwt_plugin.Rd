@@ -20,8 +20,8 @@ eqwt_plugin(
   separate_mu = TRUE,
   epsilon = 1e-12,
   tune = FALSE,
-  callibrate_e = FALSE,
-  callibrate_mu = FALSE
+  calibrate_e = FALSE,
+  calibrate_mu = FALSE
 )
 }
 \arguments{
@@ -55,9 +55,9 @@ eqwt_plugin(
 
 \item{tune}{logical flag for whether tuning should be performed on the learners before estimating nuisance functions}
 
-\item{callibrate_e}{logical flag for whether propensity scores should be callibrated after fitting}
+\item{calibrate_e}{logical flag for whether propensity scores should be calibrated after fitting}
 
-\item{callibrate_mu}{logical flag for whether mean functions should be callibrated after fitting}
+\item{calibrate_mu}{logical flag for whether mean functions should be calibrated after fitting}
 }
 \description{
 Plug-in estimator for unit quality.
