@@ -1,4 +1,4 @@
-callibrate_mu <- function(predictions, data, a, y, folds) {
+calibrate_mu <- function(predictions, data, a, y, folds) {
   a_ds <- predictions %>%
     inner_join(data %>% select(row_id, !!folds, !!a, !!y), by = 'row_id') %>%
     mutate(!!folds := as.factor(!!sym(folds)))

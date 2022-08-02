@@ -15,8 +15,8 @@
 #' @param separate_mu logical flag for whether mean functions for each unit should be estimated separately or in a big joint model
 #' @param epsilon positive scalar that indicates the amount that the optimization of equity balance constraints is allowed to deviate from the required constraints
 #' @param tune logical flag for whether tuning should be performed on the learners before estimating nuisance functions
-#' @param callibrate_e logical flag for whether propensity scores should be callibrated after fitting
-#' @param callibrate_mu logical flag for whether mean functions should be callibrated after fitting
+#' @param calibrate_e logical flag for whether propensity scores should be calibrated after fitting
+#' @param calibrate_mu logical flag for whether mean functions should be calibrated after fitting
 #' @param include_unweighted logical flag for whether to also estimate a non-equity-weighted version of the estimator
 #'
 #' @export
@@ -32,8 +32,8 @@ popwt_tmle <- function(data,
                        separate_mu = TRUE,
                        epsilon = 1e-12,
                        tune = FALSE,
-                       callibrate_e = FALSE,
-                       callibrate_mu = FALSE,
+                       calibrate_e = FALSE,
+                       calibrate_mu = FALSE,
                        include_unweighted = FALSE) {
   if (is.null(folds)) {
     ds <- make_folds(data, a, K)
@@ -55,8 +55,8 @@ popwt_tmle <- function(data,
                              separate_mu = separate_mu,
                              epsilon = epsilon,
                              tune = tune,
-                             callibrate_e = callibrate_e,
-                             callibrate_mu = callibrate_mu,
+                             calibrate_e = calibrate_e,
+                             calibrate_mu = calibrate_mu,
                              truncation_pt = truncation_pt)
   shrink_estimates(out, 'tmle_est', 'est_se')
 }
