@@ -10,19 +10,15 @@ popwt_tmle(
   id,
   a,
   y,
-  wvars,
-  zvars,
+  covars,
   truncation_pt = 1e-07,
   adaptive = FALSE,
   K = 2,
   lrnr = lrn("classif.ranger"),
-  separate_e = TRUE,
-  separate_mu = TRUE,
-  epsilon = 1e-12,
-  tune = FALSE,
-  calibrate_e = FALSE,
-  calibrate_mu = FALSE,
-  include_unweighted = FALSE
+  separate_e = FALSE,
+  separate_mu = FALSE,
+  calibrate_e = TRUE,
+  calibrate_mu = TRUE
 )
 }
 \arguments{
@@ -36,11 +32,9 @@ popwt_tmle(
 
 \item{y}{string identifying the column in `data` that denotes the outcome of interest}
 
-\item{wvars}{string vector identifying the columns in `data` that denote the protected characteristics}
+\item{covars}{string vector identifying the columns in `data` that denote the control characteristics}
 
-\item{zvars}{string vector identifying the columns in `data` that denote the control (non-protected) characteristics}
-
-\item{truncation_pt}{a number in (0,1) to which the propensity score is truncated (from above and below)}
+\item{truncation_pt}{a number in (0,1) to which the propensity score is truncated (from above and below); default is 5/sqrt(n)/log(n)}
 
 \item{adaptive}{logical flag of whether to use the adaptive normalization of Khan and Ugander (2021)}
 
@@ -52,15 +46,9 @@ popwt_tmle(
 
 \item{separate_mu}{logical flag for whether mean functions for each unit should be estimated separately or in a big joint model}
 
-\item{epsilon}{positive scalar that indicates the amount that the optimization of equity balance constraints is allowed to deviate from the required constraints}
-
-\item{tune}{logical flag for whether tuning should be performed on the learners before estimating nuisance functions}
-
 \item{calibrate_e}{logical flag for whether propensity scores should be calibrated after fitting}
 
 \item{calibrate_mu}{logical flag for whether mean functions should be calibrated after fitting}
-
-\item{include_unweighted}{logical flag for whether to also estimate a non-equity-weighted version of the estimator}
 }
 \description{
 TMLE for unit quality.

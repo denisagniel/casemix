@@ -1,4 +1,4 @@
-estimate_e <- function(data, folds, id, x, a, lrnr, task_name = 'e', separate = TRUE, tune = TRUE, evals = 20, calibrate = TRUE, verbose = TRUE) {
+estimate_e <- function(data, folds, id, x, a, lrnr, task_name = 'e', separate = TRUE, evals = 20, calibrate = TRUE, verbose = TRUE) {
   if (lrnr$predict_type != 'prob') lrnr$predict_type <- 'prob'
   data <- dplyr::mutate(data, row_id = 1:nrow(data))
   data <- dplyr::mutate_if(data, is.character, as.factor)
@@ -11,36 +11,36 @@ estimate_e <- function(data, folds, id, x, a, lrnr, task_name = 'e', separate = 
     }
     this_task <- mlr3::as_task_classif(xy_dat, target = a, id = task_name)
 
-    if (tune) {
-      if (lrnr$id == 'classif.kknn') {
-        ts <- lts('classif.kknn.rbv2')
-        tlrn <- ts$get_learner()
-      } else if (lrnr$id == 'classif.ranger') {
-        tlrn <- lrn('classif.ranger',
-                    num.trees = to_tune(lower = 1, upper = 2000),
-                    replace = to_tune(),
-                    sample.fraction = to_tune(lower = 0.1, upper = 1),
-                    min.node.size = to_tune(lower = 1, upper = 100),
-                    splitrule = to_tune(),
-                    num.random.splits = to_tune(lower = 1, upper = 100),
-                    mtry = to_tune(lower = 1, upper = length(x)),
-                    max.depth = to_tune(lower = 1, upper = 10))
-      }
-      else {
-        ts <- lts(lrnr)
-        tlrn <- lrnr
-      }
-      if (tlrn$predict_type != 'prob') tlrn$predict_type <- 'prob'
-      instance = tune(
-        method = "random_search",
-        task = this_task,
-        learner = tlrn,
-        resampling = rsmp("holdout"),
-        measure = msr("classif.mbrier"),
-        term_evals = evals
-      )
-      lrnr$param_set$values = instance$result_learner_param_vals
-    }
+    # if (tune) {
+    #   if (lrnr$id == 'classif.kknn') {
+    #     ts <- lts('classif.kknn.rbv2')
+    #     tlrn <- ts$get_learner()
+    #   } else if (lrnr$id == 'classif.ranger') {
+    #     tlrn <- lrn('classif.ranger',
+    #                 num.trees = to_tune(lower = 1, upper = 2000),
+    #                 replace = to_tune(),
+    #                 sample.fraction = to_tune(lower = 0.1, upper = 1),
+    #                 min.node.size = to_tune(lower = 1, upper = 100),
+    #                 splitrule = to_tune(),
+    #                 num.random.splits = to_tune(lower = 1, upper = 100),
+    #                 mtry = to_tune(lower = 1, upper = length(x)),
+    #                 max.depth = to_tune(lower = 1, upper = 10))
+    #   }
+    #   else {
+    #     ts <- lts(lrnr)
+    #     tlrn <- lrnr
+    #   }
+    #   if (tlrn$predict_type != 'prob') tlrn$predict_type <- 'prob'
+    #   instance = tune(
+    #     method = "random_search",
+    #     task = this_task,
+    #     learner = tlrn,
+    #     resampling = rsmp("holdout"),
+    #     measure = msr("classif.mbrier"),
+    #     term_evals = evals
+    #   )
+    #   lrnr$param_set$values = instance$result_learner_param_vals
+    # }
 
     all_folds <- dplyr::pull(data, folds)
     unique_folds <- unique(all_folds)
@@ -55,11 +55,12 @@ estimate_e <- function(data, folds, id, x, a, lrnr, task_name = 'e', separate = 
   } else {
     avals <- unique(dplyr::pull(data, !!rlang::sym(a)))
     if (verbose) print('Fitting separate propensity score model for each unit.')
-    progressr::with_progress({
+    # progressr::with_progress({
       p <- progressr::progressor(steps = length(avals))
-      pred_js <- furrr::future_map(avals, function(aa) {
-        p()
-        # pred_js <- purrr::map(avals, function(aa) {
+      # pred_js <- furrr::future_map(avals, function(aa) {
+
+        pred_js <- purrr::map(avals, function(aa) {
+          p()
         ds_j <- dplyr::mutate(data, a_j = as.factor(ifelse(!!rlang::sym(a) == aa, TRUE, FALSE)))
         xy_dat <- select(ds_j, any_of(c('a_j', x)))
         this_task <- mlr3::as_task_classif(xy_dat, target = 'a_j', id = paste0(task_name, '_', aa))
@@ -74,7 +75,7 @@ estimate_e <- function(data, folds, id, x, a, lrnr, task_name = 'e', separate = 
                                              a = aa,
                                              calibrate = calibrate))
       })
-    })
+    # })
 
     predictions <- purrr::reduce(pred_js, inner_join, by = 'row_id')
   }
@@ -96,7 +97,7 @@ learn_fold_e <- function(task, train_ids, test_ids, lrnr, a, calibrate, verbose 
   progressr::with_progress({
 
     p <- progressr::progressor(steps = length(avals))
-  es <- furrr::future_map(avals, function(aa) {
+  es <- purrr::map(avals, function(aa) {
     p()
     tibble::tibble(row_id = test_ids,
                            !!glue::glue('e_{aa}') := predicted_vals$prob[,aa])
@@ -123,7 +124,7 @@ learn_fold_e <- function(task, train_ids, test_ids, lrnr, a, calibrate, verbose 
   # reduce(es, inner_join)
 }
 
-learn_fold_e_separate <- function(task, train_ids, test_ids, lrnr, aa, calibrate = TRUE) {
+learn_fold_e_separate <- function(task, train_ids, test_ids, lrnr, aa, calibrate = TRUE, verbose = FALSE) {
   # browser()
   lrnr$train(task, row_ids = train_ids)
   test_predicted_vals <- lrnr$predict(task, row_ids = test_ids)

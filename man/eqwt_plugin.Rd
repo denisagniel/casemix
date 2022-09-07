@@ -12,16 +12,15 @@ eqwt_plugin(
   y,
   wvars,
   zvars,
-  truncation_pt = 1e-07,
+  truncation_pt = NULL,
   adaptive = FALSE,
   K = 2,
   lrnr = lrn("classif.ranger"),
-  separate_e = TRUE,
-  separate_mu = TRUE,
+  separate_e = FALSE,
+  separate_mu = FALSE,
   epsilon = 1e-12,
-  tune = FALSE,
-  calibrate_e = FALSE,
-  calibrate_mu = FALSE
+  calibrate_e = TRUE,
+  calibrate_mu = TRUE
 )
 }
 \arguments{
@@ -39,7 +38,7 @@ eqwt_plugin(
 
 \item{zvars}{string vector identifying the columns in `data` that denote the control (non-protected) characteristics}
 
-\item{truncation_pt}{a number in (0,1) to which the propensity score is truncated (from above and below)}
+\item{truncation_pt}{a number in (0,1) to which the propensity score is truncated (from above and below); default is 5/sqrt(n)/log(n)}
 
 \item{adaptive}{logical flag of whether to use the adaptive normalization of Khan and Ugander (2021)}
 
@@ -52,8 +51,6 @@ eqwt_plugin(
 \item{separate_mu}{logical flag for whether mean functions for each unit should be estimated separately or in a big joint model}
 
 \item{epsilon}{positive scalar that indicates the amount that the optimization of equity balance constraints is allowed to deviate from the required constraints}
-
-\item{tune}{logical flag for whether tuning should be performed on the learners before estimating nuisance functions}
 
 \item{calibrate_e}{logical flag for whether propensity scores should be calibrated after fitting}
 

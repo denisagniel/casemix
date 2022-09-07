@@ -15,6 +15,10 @@ estimate_unit_tmle <- function(data, a, aval, y, w = NULL, e, mu, truncation_pt 
     data <- dplyr::mutate(data, w = 1)
     w <- 'w'
   }
+  if (is.null(truncation_pt)) {
+    n <- nrow(data)
+    truncation_pt <- 5/sqrt(n)/log(n)
+  }
   if_data <- dplyr::mutate(data,
                            inf_fn = wtd_influence_fn(a = 1*(!!rlang::sym(a) == aval),
                                                      y = !!rlang::sym(y),
@@ -25,18 +29,20 @@ estimate_unit_tmle <- function(data, a, aval, y, w = NULL, e, mu, truncation_pt 
                                                      adaptive = FALSE
                            ))
   tmle_ds <- dplyr::mutate(if_data,
-                           h = 1*(!!rlang::sym(a) == aval)/pmax(!!rlang::sym(e), truncation_pt),
+                           h = 1*(!!rlang::sym(a) == aval)/pmax(!!rlang::sym(e), truncation_pt)*!!rlang::sym(w),
                            mu_h = pmin(pmax(truncation_pt, !!rlang::sym(mu)), 1 - truncation_pt))
   tmle_fm <- as.formula(glue::glue('{y} ~ h + offset(qlogis(mu_h))'))
   if (any(round(pull(tmle_ds, sym(w)), 9)) < 0) browser()
-  tmle_fit <- glm(tmle_fm, data = tmle_ds, family = binomial, weight = round(pull(tmle_ds, sym(w)), 9))
+  tmle_fit <- glm(tmle_fm, data = tmle_ds, family = binomial)
   eps <- coef(tmle_fit)[2]
   tmle_ds <- dplyr::mutate(tmle_ds,
                            muhat_star = plogis(qlogis(mu_h) + eps*h))
 
-  dplyr::summarise(tmle_ds,
+  out <- dplyr::summarise(tmle_ds,
                    !!a := aval,
                    plugin_est = mean(inf_fn),
                    tmle_est = sum(muhat_star*!!rlang::sym(w))/sum(!!rlang::sym(w)),
                    est_se = sqrt(var(inf_fn)/dplyr::n()))
+  # if (out$est_se > 0.1) browser()
+  out
 }
