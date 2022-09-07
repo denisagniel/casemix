@@ -16,24 +16,39 @@ estimate_equity_wts(
   separate_e = TRUE,
   separate_mu = TRUE,
   epsilon = 1e-12,
-  tune = FALSE,
-  evals = 20,
-  callibrate_e = TRUE,
-  callibrate_mu = TRUE,
-  sub_k = 2,
-  truncation_pt = 1e-07
+  calibrate_e = TRUE,
+  calibrate_mu = TRUE,
+  sub_k = 2
 )
 }
 \arguments{
 \item{data}{data.frame containing the information to analyze}
 
+\item{folds}{optional string identifying the column in `data` that denotes the folds for cross-fitting}
+
+\item{id}{string identifying the column in `data` that denotes the ID variable}
+
 \item{wvars}{string vector identifying the columns in `data` that denote the protected characteristics}
 
-\item{a}{optional string identifying the column in `data` that denotes the units of interest; if not provided, must provide `avals`}
+\item{zvars}{string vector identifying the columns in `data` that denote the control (non-protected) characteristics}
 
-\item{epsilon}{positive scalar that indicates the amount that the optimization is allowed to deviate from the required constraints}
+\item{a}{optional string identifying the column in `data` that denotes the units of interest (i.e., the thing that is being ranked in terms of quality, like health care providers or schools)}
 
-\item{avals}{optional string identifying unique values of `a` found in the data; if not provided, must provide `a`}
+\item{y}{string identifying the column in `data` that denotes the outcome of interest}
+
+\item{lrnr}{mlr3 learner object which will be used to estimate the mean function and propensity score}
+
+\item{separate_e}{logical flag for whether propensity scores for each unit should be estimated separately or in a big multinomial model}
+
+\item{separate_mu}{logical flag for whether mean functions for each unit should be estimated separately or in a big joint model}
+
+\item{epsilon}{positive scalar that indicates the amount that the optimization of equity balance constraints is allowed to deviate from the required constraints}
+
+\item{calibrate_e}{logical flag for whether propensity scores should be calibrated after fitting}
+
+\item{calibrate_mu}{logical flag for whether mean functions should be calibrated after fitting}
+
+\item{sub_k}{number of sub-folds to make for doing local cross-fiting for weight estimation only}
 }
 \description{
 These weights ensure that each characteristic represented by a variable in `wvars` is balanced in the weighted population.

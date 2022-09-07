@@ -19,11 +19,8 @@ estimate_wtd_tmle(
   lrnr = lrn("classif.ranger"),
   separate_e = TRUE,
   separate_mu = TRUE,
-  epsilon = 1e-12,
-  tune = FALSE,
   calibrate_e = FALSE,
-  calibrate_mu = FALSE,
-  include_unweighted = TRUE
+  calibrate_mu = FALSE
 )
 }
 \arguments{
@@ -53,15 +50,9 @@ estimate_wtd_tmle(
 
 \item{separate_mu}{logical flag for whether mean functions for each unit should be estimated separately or in a big joint model}
 
-\item{epsilon}{positive scalar that indicates the amount that the optimization of equity balance constraints is allowed to deviate from the required constraints}
-
-\item{tune}{logical flag for whether tuning should be performed on the learners before estimating nuisance functions}
-
 \item{calibrate_e}{logical flag for whether propensity scores should be calibrated after fitting}
 
 \item{calibrate_mu}{logical flag for whether mean functions should be calibrated after fitting}
-
-\item{include_unweighted}{logical flag for whether to also estimate a non-equity-weighted version of the estimator}
 
 \item{data}{data.frame containing the information to analyze}
 }

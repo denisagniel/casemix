@@ -9,7 +9,6 @@ shrink_estimates(
   ests,
   ses,
   est_nm = "shrinkage_est",
-  lam_nm = "lambda",
   rel_nm = "reliability",
   ...
 )
@@ -22,8 +21,6 @@ shrink_estimates(
 \item{ses}{string identifying the column in `data` that denotes the standard errors of the estimates}
 
 \item{est_nm}{name for shrunken estimates in the returned data.frame}
-
-\item{lam_nm}{name for lambda parameter in the returned data.frame}
 
 \item{rel_nm}{name for reliability in the returned data.frame}
 }
