@@ -13,7 +13,7 @@ estimate_phi <- function(data, a, y, truncation_pt = 1e-7, adaptive = FALSE) {
     updated_data <- mutate(updated_data,
                            !!this_a := 1*(!!sym(a) == aa),
                            !!this_phi := wtd_influence_fn(a = !!sym(this_a),
-                                                          y = y,
+                                                          y = !!sym(y),
                                                           e_hat = !!sym(this_e),
                                                           mu_hat = !!sym(this_mu),
                                                           w_hat = 1,

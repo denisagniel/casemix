@@ -10,20 +10,50 @@
 #' @param adaptive logical flag of whether to use the adaptive normalization of Khan and Ugander (2021)
 #' @param K optional integer identifying the number of folds for cross-fitting; required if folds = NULL
 #' @param lrnr mlr3 learner object which will be used to estimate the mean function and propensity score
+#' @param lrnr_e mlr3 learner object which will be used to estimate the propensity score (ignored if `lrnr` is specified)
+#' @param lrnr_mu mlr3 learner object which will be used to estimate the mean function (ignored if `lrnr` is specified)
 #' @param separate_e logical flag for whether propensity scores for each unit should be estimated separately or in a big multinomial model
 #' @param separate_mu logical flag for whether mean functions for each unit should be estimated separately or in a big joint model
 #' @param calibrate_e logical flag for whether propensity scores should be calibrated after fitting
 #' @param calibrate_mu logical flag for whether mean functions should be calibrated after fitting
-#'
+#' @return A `tibble` with the following columns:\itemize{
+#'   \item a column with same name as the argument \code{a} which indicates the unit.
+#'   \item \code{plugin_est}: a logical flag carrying forward the value of the
+#'   '\code{preprocessed}' argument indicating whether the expression data were
+#'   already preprocessed, or were provided as raw counts and transformed into
+#'   log-counts per million.
+#'   \item \code{n_perm}: an integer carrying forward the value of the
+#'   '\code{n_perm}' argument indicating the number of perturbations performed
+#'   (\code{NA} if asymptotic test was performed).
+#'   \item \code{genesets}: carrying forward the value of the '\code{genesets}'
+#'   argument defining the gene sets of interest (\code{NULL} for gene-wise
+#'   testing).
+#'   \item \code{pval}: computed p-values. A \code{data.frame} with one raw for
+#'   each each gene set, or for each gene if \code{genesets} argument is
+#'   \code{NULL}, and with 2 columns: the first one '\code{rawPval}' contains
+#'   the raw p-values, the second one contains the FDR adjusted p-values
+#'   (according to the '\code{padjust_methods}' argument) and is named
+#'   '\code{adjPval}'.
+#' }
 #' @export
+#'
+#' @import mlr3 mlr3learners mlr3extralearners dplyr purrr rlang
+#' @importFrom tibble tibble
+#' @importFrom glue glue
+#' @importFrom progressr progressor
+#' @importFrom stringr str_remove
+#' @importFrom ebnm ebnm_normal
+#'
 popwt_plugin <- function(data,
                         folds = NULL,
                         id,
                         a, y, covars,
-                        truncation_pt = 1e-7,
+                        truncation_pt = NULL,
                         adaptive = FALSE,
                         K = 2,
                         lrnr = lrn('classif.ranger'),
+                        lrnr_e = NULL,
+                        lrnr_mu = NULL,
                         separate_e = FALSE,
                         separate_mu = FALSE,
                         calibrate_e = TRUE,
@@ -44,6 +74,8 @@ popwt_plugin <- function(data,
                              a = a,
                              y = y,
                              lrnr = lrnr,
+                             lrnr_e = lrnr_e,
+                             lrnr_mu = lrnr_mu,
                              separate_e = separate_e,
                              separate_mu = separate_mu,
                              calibrate_e = calibrate_e,

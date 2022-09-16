@@ -1,4 +1,4 @@
-estimate_mu <- function(data, folds, id, x, y, a, lrnr, task_name = 'mu', separate = TRUE, calibrate = TRUE, verbose = TRUE) {
+estimate_mu <- function(data, folds, id, x, y, a, lrnr, task_name = 'mu', separate = TRUE, calibrate = TRUE, verbose = FALSE) {
   if (lrnr$predict_type != 'prob') lrnr$predict_type <- 'prob'
   data <- dplyr::mutate(data, row_id = 1:nrow(data)) ## create an internal id with known characteristics
   data <- dplyr::mutate_if(data, is.character, as.factor) ## character vectors aren't typically allowed

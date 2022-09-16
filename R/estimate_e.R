@@ -1,4 +1,4 @@
-estimate_e <- function(data, folds, id, x, a, lrnr, task_name = 'e', separate = TRUE, evals = 20, calibrate = TRUE, verbose = TRUE) {
+estimate_e <- function(data, folds, id, x, a, lrnr, task_name = 'e', separate = TRUE, evals = 20, calibrate = TRUE, verbose = FALSE) {
   if (lrnr$predict_type != 'prob') lrnr$predict_type <- 'prob'
   data <- dplyr::mutate(data, row_id = 1:nrow(data))
   data <- dplyr::mutate_if(data, is.character, as.factor)
@@ -104,7 +104,7 @@ learn_fold_e <- function(task, train_ids, test_ids, lrnr, a, calibrate, verbose 
   })
   })
   train_predicted_vals <- lrnr$predict(task, row_ids = train_ids)
-  train_es <- map(avals, ~tibble::tibble(row_id = train_ids,
+  train_es <- purrr::map(avals, ~tibble::tibble(row_id = train_ids,
                                          !!glue::glue('e_{.}') := train_predicted_vals$prob[,.]))
   if (calibrate) {
     if (verbose) print('Calibrating propensity scores on one of the folds.')
