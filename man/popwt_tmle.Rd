@@ -15,6 +15,8 @@ popwt_tmle(
   adaptive = FALSE,
   K = 2,
   lrnr = lrn("classif.ranger"),
+  lrnr_e = NULL,
+  lrnr_mu = NULL,
   separate_e = FALSE,
   separate_mu = FALSE,
   calibrate_e = TRUE,
@@ -41,6 +43,10 @@ popwt_tmle(
 \item{K}{optional integer identifying the number of folds for cross-fitting; required if folds = NULL}
 
 \item{lrnr}{mlr3 learner object which will be used to estimate the mean function and propensity score}
+
+\item{lrnr_e}{mlr3 learner object which will be used to estimate the propensity score (ignored if `lrnr` is specified)}
+
+\item{lrnr_mu}{mlr3 learner object which will be used to estimate the mean function (ignored if `lrnr` is specified)}
 
 \item{separate_e}{logical flag for whether propensity scores for each unit should be estimated separately or in a big multinomial model}
 

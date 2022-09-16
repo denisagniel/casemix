@@ -11,10 +11,12 @@ popwt_plugin(
   a,
   y,
   covars,
-  truncation_pt = 1e-07,
+  truncation_pt = NULL,
   adaptive = FALSE,
   K = 2,
   lrnr = lrn("classif.ranger"),
+  lrnr_e = NULL,
+  lrnr_mu = NULL,
   separate_e = FALSE,
   separate_mu = FALSE,
   calibrate_e = TRUE,
@@ -42,6 +44,10 @@ popwt_plugin(
 
 \item{lrnr}{mlr3 learner object which will be used to estimate the mean function and propensity score}
 
+\item{lrnr_e}{mlr3 learner object which will be used to estimate the propensity score (ignored if `lrnr` is specified)}
+
+\item{lrnr_mu}{mlr3 learner object which will be used to estimate the mean function (ignored if `lrnr` is specified)}
+
 \item{separate_e}{logical flag for whether propensity scores for each unit should be estimated separately or in a big multinomial model}
 
 \item{separate_mu}{logical flag for whether mean functions for each unit should be estimated separately or in a big joint model}
@@ -49,6 +55,27 @@ popwt_plugin(
 \item{calibrate_e}{logical flag for whether propensity scores should be calibrated after fitting}
 
 \item{calibrate_mu}{logical flag for whether mean functions should be calibrated after fitting}
+}
+\value{
+A `tibble` with the following columns:\itemize{
+  \item a column with same name as the argument \code{a} which indicates the unit.
+  \item \code{plugin_est}: a logical flag carrying forward the value of the
+  '\code{preprocessed}' argument indicating whether the expression data were
+  already preprocessed, or were provided as raw counts and transformed into
+  log-counts per million.
+  \item \code{n_perm}: an integer carrying forward the value of the
+  '\code{n_perm}' argument indicating the number of perturbations performed
+  (\code{NA} if asymptotic test was performed).
+  \item \code{genesets}: carrying forward the value of the '\code{genesets}'
+  argument defining the gene sets of interest (\code{NULL} for gene-wise
+  testing).
+  \item \code{pval}: computed p-values. A \code{data.frame} with one raw for
+  each each gene set, or for each gene if \code{genesets} argument is
+  \code{NULL}, and with 2 columns: the first one '\code{rawPval}' contains
+  the raw p-values, the second one contains the FDR adjusted p-values
+  (according to the '\code{padjust_methods}' argument) and is named
+  '\code{adjPval}'.
+}
 }
 \description{
 Plug-in estimator for unit quality.

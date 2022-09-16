@@ -13,6 +13,8 @@ estimate_equity_wts(
   a,
   y,
   lrnr,
+  lrnr_e = NULL,
+  lrnr_mu = NULL,
   separate_e = TRUE,
   separate_mu = TRUE,
   epsilon = 1e-12,
@@ -37,6 +39,10 @@ estimate_equity_wts(
 \item{y}{string identifying the column in `data` that denotes the outcome of interest}
 
 \item{lrnr}{mlr3 learner object which will be used to estimate the mean function and propensity score}
+
+\item{lrnr_e}{mlr3 learner object which will be used to estimate the propensity score (ignored if `lrnr` is specified)}
+
+\item{lrnr_mu}{mlr3 learner object which will be used to estimate the mean function (ignored if `lrnr` is specified)}
 
 \item{separate_e}{logical flag for whether propensity scores for each unit should be estimated separately or in a big multinomial model}
 
