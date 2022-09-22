@@ -1,4 +1,4 @@
-#' Plug-in estimator for unit quality.
+#' Plug-in estimator for equity-weighted unit quality.
 #'
 #' @param data data.frame containing the information to analyze
 #' @param folds optional string identifying the column in `data` that denotes the folds for cross-fitting
@@ -11,13 +11,31 @@
 #' @param adaptive logical flag of whether to use the adaptive normalization of Khan and Ugander (2021)
 #' @param K optional integer identifying the number of folds for cross-fitting; required if folds = NULL
 #' @param lrnr mlr3 learner object which will be used to estimate the mean function and propensity score
+#' @param lrnr_e mlr3 learner object which will be used to estimate the propensity score (ignored if `lrnr` is specified)
+#' @param lrnr_mu mlr3 learner object which will be used to estimate the mean function (ignored if `lrnr` is specified)
 #' @param separate_e logical flag for whether propensity scores for each unit should be estimated separately or in a big multinomial model
 #' @param separate_mu logical flag for whether mean functions for each unit should be estimated separately or in a big joint model
 #' @param epsilon positive scalar that indicates the amount that the optimization of equity balance constraints is allowed to deviate from the required constraints
 #' @param calibrate_e logical flag for whether propensity scores should be calibrated after fitting
 #' @param calibrate_mu logical flag for whether mean functions should be calibrated after fitting
-#'
+#' @param condition_on a string indicating a variable within which to estimate conditional quality estimates.
+#' @return A `tibble` with the following columns:\itemize{
+#'   \item a column with the same name as the argument \code{a} which indicates the unit.
+#'   \item \code{plugin_est}: the plug-in estimate.
+#'   \item \code{plugin_se}: the estimated standard error for the plug-in.
+#'   \item \code{shrinkage_est}: an estimate that is shrunk using empirical bayes via the \code{ebnm} package.
+#'   \item \code{shrinkage_est_se}: the estimated standard error for the shrinkage estimate.
+#'   \item \code{reliability}: the reliability of the shrinkage estimate.
+#' }
 #' @export
+#'
+#' @import mlr3 mlr3learners mlr3extralearners dplyr purrr rlang
+#' @importFrom tibble tibble
+#' @importFrom glue glue
+#' @importFrom progressr progressor
+#' @importFrom stringr str_remove
+#' @importFrom ebnm ebnm_normal
+#'
 eqwt_plugin <- function(data,
                         folds = NULL,
                         id,
@@ -26,11 +44,14 @@ eqwt_plugin <- function(data,
                         adaptive = FALSE,
                         K = 2,
                         lrnr = lrn('classif.ranger'),
+                        lrnr_e = NULL,
+                        lrnr_mu = NULL,
                         separate_e = FALSE,
                         separate_mu = FALSE,
                         epsilon = 1e-12,
                         calibrate_e = TRUE,
-                        calibrate_mu = TRUE) {
+                        calibrate_mu = TRUE,
+                        condition_on = NULL) {
   if (is.null(folds)) {
     ds <- make_folds(data, a, K)
     folds <- 'fold'
@@ -44,6 +65,8 @@ eqwt_plugin <- function(data,
                             a = a,
                             y = y,
                             lrnr = lrnr,
+                            lrnr_e = lrnr_e,
+                            lrnr_mu = lrnr_mu,
                             separate_e = separate_e,
                             separate_mu = separate_mu,
                             epsilon = epsilon,
@@ -60,6 +83,8 @@ eqwt_plugin <- function(data,
                              a = a,
                              y = y,
                              lrnr = lrnr,
+                             lrnr_e = lrnr_e,
+                             lrnr_mu = lrnr_mu,
                              separate_e = separate_e,
                              separate_mu = separate_mu,
                              calibrate_e = calibrate_e,

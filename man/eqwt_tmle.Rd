@@ -2,7 +2,7 @@
 % Please edit documentation in R/eqwt_tmle.R
 \name{eqwt_tmle}
 \alias{eqwt_tmle}
-\title{TMLE estimator for unit quality.}
+\title{TMLE estimator for equity-weighted unit quality.}
 \usage{
 eqwt_tmle(
   data,
@@ -16,6 +16,8 @@ eqwt_tmle(
   adaptive = FALSE,
   K = 2,
   lrnr = lrn("classif.ranger"),
+  lrnr_e = NULL,
+  lrnr_mu = NULL,
   separate_e = FALSE,
   separate_mu = FALSE,
   epsilon = 1e-12,
@@ -46,6 +48,10 @@ eqwt_tmle(
 
 \item{lrnr}{mlr3 learner object which will be used to estimate the mean function and propensity score}
 
+\item{lrnr_e}{mlr3 learner object which will be used to estimate the propensity score (ignored if `lrnr` is specified)}
+
+\item{lrnr_mu}{mlr3 learner object which will be used to estimate the mean function (ignored if `lrnr` is specified)}
+
 \item{separate_e}{logical flag for whether propensity scores for each unit should be estimated separately or in a big multinomial model}
 
 \item{separate_mu}{logical flag for whether mean functions for each unit should be estimated separately or in a big joint model}
@@ -57,5 +63,5 @@ eqwt_tmle(
 \item{calibrate_mu}{logical flag for whether mean functions should be calibrated after fitting}
 }
 \description{
-TMLE estimator for unit quality.
+TMLE estimator for equity-weighted unit quality.
 }

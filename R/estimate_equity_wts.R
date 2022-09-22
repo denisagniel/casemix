@@ -10,6 +10,8 @@
 #' @param a optional string identifying the column in `data` that denotes the units of interest (i.e., the thing that is being ranked in terms of quality, like health care providers or schools)
 #' @param y string identifying the column in `data` that denotes the outcome of interest
 #' @param lrnr mlr3 learner object which will be used to estimate the mean function and propensity score
+#' @param lrnr_e mlr3 learner object which will be used to estimate the propensity score (ignored if `lrnr` is specified)
+#' @param lrnr_mu mlr3 learner object which will be used to estimate the mean function (ignored if `lrnr` is specified)
 #' @param separate_e logical flag for whether propensity scores for each unit should be estimated separately or in a big multinomial model
 #' @param separate_mu logical flag for whether mean functions for each unit should be estimated separately or in a big joint model
 #' @param epsilon positive scalar that indicates the amount that the optimization of equity balance constraints is allowed to deviate from the required constraints
@@ -18,7 +20,7 @@
 #' @param sub_k number of sub-folds to make for doing local cross-fiting for weight estimation only
 #'
 #' @export
-estimate_equity_wts <- function(data, folds, id, wvars, zvars, a, y, lrnr, separate_e = TRUE, separate_mu = TRUE, epsilon = 1e-12, calibrate_e = TRUE, calibrate_mu = TRUE, sub_k = 2) {
+estimate_equity_wts <- function(data, folds, id, wvars, zvars, a, y, lrnr, lrnr_e = NULL, lrnr_mu = NULL, separate_e = TRUE, separate_mu = TRUE, epsilon = 1e-12, calibrate_e = TRUE, calibrate_mu = TRUE, sub_k = 2) {
   ##############################
   ## find the folds in the data so that weight estimation can be done on separate folds
   #################################
@@ -38,6 +40,8 @@ estimate_equity_wts <- function(data, folds, id, wvars, zvars, a, y, lrnr, separ
                                  a,
                                  y,
                                  lrnr = lrnr,
+                                 lrnr_e = lrnr_e,
+                                 lrnr_mu = lrnr_mu,
                                  separate_e,
                                  separate_mu,
                                  epsilon,
@@ -55,6 +59,8 @@ fold_wt <- function(data,
                     a,
                     y,
                     lrnr,
+                    lrnr_e,
+                    lrnr_mu,
                     separate_e,
                     separate_mu,
                     epsilon,
@@ -76,10 +82,18 @@ fold_wt <- function(data,
 
   #######################
   ## estimate mu (mean functions) and e (propensity scores) on sub-folds
-  train_data <- left_join(train_data,
-                  estimate_e(train_data, 'subfold', id, c(wvars, zvars), a, lrnr, separate = separate_e, calibrate = calibrate_e), by = id)
-  train_data <- left_join(train_data,
-                  estimate_mu(train_data, 'subfold', id, c(wvars, zvars), y, a, lrnr, separate = separate_mu, calibrate = calibrate_mu), by = id)
+  if (!is.null(lrnr)) {
+    train_data <- left_join(train_data,
+                            estimate_e(train_data, 'subfold', id, c(wvars, zvars), a, lrnr, separate = separate_e, calibrate = calibrate_e), by = id)
+    train_data <- left_join(train_data,
+                            estimate_mu(train_data, 'subfold', id, c(wvars, zvars), y, a, lrnr, separate = separate_mu, calibrate = calibrate_mu), by = id)
+  } else {
+    train_data <- left_join(train_data,
+                            estimate_e(train_data, 'subfold', id, c(wvars, zvars), a, lrnr_e, separate = separate_e, calibrate = calibrate_e), by = id)
+    train_data <- left_join(train_data,
+                            estimate_mu(train_data, 'subfold', id, c(wvars, zvars), y, a, lrnr_mu, separate = separate_mu, calibrate = calibrate_mu), by = id)
+  }
+
 
   #######################
   ## add influence function to training data

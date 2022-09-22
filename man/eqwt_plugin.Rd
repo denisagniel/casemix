@@ -2,7 +2,7 @@
 % Please edit documentation in R/eqwt_plugin.R
 \name{eqwt_plugin}
 \alias{eqwt_plugin}
-\title{Plug-in estimator for unit quality.}
+\title{Plug-in estimator for equity-weighted unit quality.}
 \usage{
 eqwt_plugin(
   data,
@@ -16,6 +16,8 @@ eqwt_plugin(
   adaptive = FALSE,
   K = 2,
   lrnr = lrn("classif.ranger"),
+  lrnr_e = NULL,
+  lrnr_mu = NULL,
   separate_e = FALSE,
   separate_mu = FALSE,
   epsilon = 1e-12,
@@ -46,6 +48,10 @@ eqwt_plugin(
 
 \item{lrnr}{mlr3 learner object which will be used to estimate the mean function and propensity score}
 
+\item{lrnr_e}{mlr3 learner object which will be used to estimate the propensity score (ignored if `lrnr` is specified)}
+
+\item{lrnr_mu}{mlr3 learner object which will be used to estimate the mean function (ignored if `lrnr` is specified)}
+
 \item{separate_e}{logical flag for whether propensity scores for each unit should be estimated separately or in a big multinomial model}
 
 \item{separate_mu}{logical flag for whether mean functions for each unit should be estimated separately or in a big joint model}
@@ -57,5 +63,5 @@ eqwt_plugin(
 \item{calibrate_mu}{logical flag for whether mean functions should be calibrated after fitting}
 }
 \description{
-Plug-in estimator for unit quality.
+Plug-in estimator for equity-weighted unit quality.
 }
