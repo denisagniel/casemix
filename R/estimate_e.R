@@ -89,7 +89,7 @@ estimate_e <- function(data, folds, id, x, a, lrnr, task_name = 'e', separate = 
 }
 
 
-learn_fold_e <- function(task, train_ids, test_ids, lrnr, a, calibrate, verbose = TRUE) {
+learn_fold_e <- function(task, train_ids, test_ids, lrnr, a, calibrate, verbose = FALSE) {
   lrnr$train(task, row_ids = train_ids)
   # browser()
   predicted_vals <- lrnr$predict(task, row_ids = test_ids)
