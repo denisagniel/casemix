@@ -110,7 +110,7 @@ learn_fold_mu_separate <- function(task, train_ids, test_ids, lrnr, aa, calibrat
     train_predicted_vals <- lrnr$predict(task, row_ids = train_ids)
     train_pred_ds <- tibble::tibble(row_id = train_ids,
                               !!glue::glue('mu_{aa}') := train_predicted_vals$prob[,2])
-    join_ds <- task$data() %>% transmute(row_id = 1:nrow(task$data()), y)
+    join_ds <- task$data() %>% transmute(row_id = 1:nrow(task$data()), !!rlang::sym(task$target_names))
     cal_pred <- calibrate_prediction(train_pred_ds, join_ds, pred_ds, pred_nm = glue('mu_{aa}'), task_y = task$target_names, target_val = task$class_names[2])
     return(cal_pred)
   } else return(pred_ds)
