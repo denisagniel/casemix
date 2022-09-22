@@ -18,7 +18,16 @@
 #' @param epsilon positive scalar that indicates the amount that the optimization of equity balance constraints is allowed to deviate from the required constraints
 #' @param calibrate_e logical flag for whether propensity scores should be calibrated after fitting
 #' @param calibrate_mu logical flag for whether mean functions should be calibrated after fitting
+#' @param condition_on a string indicating a variable within which to estimate conditional quality estimates.
 #'
+#' @return A `tibble` with the following columns:\itemize{
+#'   \item a column with the same name as the argument \code{a} which indicates the unit.
+#'   \item \code{tmle_est}: the TMLE estimate.
+#'   \item \code{tmle_se}: the estimated standard error for the TMLE.
+#'   \item \code{shrinkage_est}: an estimate that is shrunk using empirical bayes via the \code{ebnm} package.
+#'   \item \code{shrinkage_est_se}: the estimated standard error for the shrinkage estimate.
+#'   \item \code{reliability}: the reliability of the shrinkage estimate.
+#' }
 #' @export
 #'
 #' @import mlr3 mlr3learners mlr3extralearners dplyr purrr rlang
@@ -42,7 +51,8 @@ eqwt_tmle <- function(data,
                       separate_mu = FALSE,
                       epsilon = 1e-12,
                       calibrate_e = TRUE,
-                      calibrate_mu = TRUE) {
+                      calibrate_mu = TRUE,
+                      condition_on = NULL) {
   if (is.null(folds)) {
     ds <- make_folds(data, a, K)
     folds <- 'fold'
