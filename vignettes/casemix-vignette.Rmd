@@ -71,6 +71,7 @@ These estimators require the estimation of two types of nuisance functions: ones
 
 ```{r}
 pop_plugin_logistic <- popwt_plugin(data = sample_dataset, id = 'id', a = 'unit', y = 'y', covars = c('w1', 'w2', 'w3', 'x1', 'x2', 'x3'), lrnr_e = mlr3::lrn('classif.multinom'), lrnr_mu = mlr3::lrn('classif.log_reg'))
+knitr::kable(pop_plugin_logistic, digits = 3)
 ```
 
 ### Equity-weighted quality
@@ -92,5 +93,11 @@ The equity-weighted estimators ensure that those with `w3` = 1 are given the sam
 
 ```{r}
 eq_plugin_est <- eqwt_plugin(data = sample_dataset, id = 'id', a = 'unit', y = 'y', wvars = c('w1', 'w2', 'w3'), zvars = c('x1', 'x2', 'x3'))
-knitr::kable(eq_plugin_est, digits = 3)
+knitr::kable(eq_plugin_est %>% select(-wt_ds), digits = 3)
+```
+
+The equity-weighted results also include the weights, so users can reason about the equity-weighted population:
+
+```{r}
+knitr::kable(eq_plugin_est$wt_ds[[1]], digits = 3)
 ```
