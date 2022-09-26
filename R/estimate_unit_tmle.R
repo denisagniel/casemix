@@ -41,8 +41,8 @@ estimate_unit_tmle <- function(data, a, aval, y, w = NULL, e, mu, truncation_pt 
   out <- dplyr::summarise(tmle_ds,
                    !!a := aval,
                    plugin_est = mean(inf_fn),
-                   tmle_est = mean(muhat_star*!!rlang::sym(w)),
-                   tmle_se = sqrt(var(inf_fn)/dplyr::n()))
+                   tmle_est = sum(muhat_star*!!rlang::sym(w))/sum(!!rlang::sym(w)),
+                   est_se = sqrt(var(inf_fn)/dplyr::n()))
   # if (out$est_se > 0.1) browser()
   out
 }
