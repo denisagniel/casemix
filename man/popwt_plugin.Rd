@@ -20,7 +20,8 @@ popwt_plugin(
   separate_e = FALSE,
   separate_mu = FALSE,
   calibrate_e = TRUE,
-  calibrate_mu = TRUE
+  calibrate_mu = TRUE,
+  condition_on = NULL
 )
 }
 \arguments{
@@ -55,26 +56,17 @@ popwt_plugin(
 \item{calibrate_e}{logical flag for whether propensity scores should be calibrated after fitting}
 
 \item{calibrate_mu}{logical flag for whether mean functions should be calibrated after fitting}
+
+\item{condition_on}{a string indicating a variable within which to estimate conditional quality estimates.}
 }
 \value{
 A `tibble` with the following columns:\itemize{
-  \item a column with same name as the argument \code{a} which indicates the unit.
-  \item \code{plugin_est}: a logical flag carrying forward the value of the
-  '\code{preprocessed}' argument indicating whether the expression data were
-  already preprocessed, or were provided as raw counts and transformed into
-  log-counts per million.
-  \item \code{n_perm}: an integer carrying forward the value of the
-  '\code{n_perm}' argument indicating the number of perturbations performed
-  (\code{NA} if asymptotic test was performed).
-  \item \code{genesets}: carrying forward the value of the '\code{genesets}'
-  argument defining the gene sets of interest (\code{NULL} for gene-wise
-  testing).
-  \item \code{pval}: computed p-values. A \code{data.frame} with one raw for
-  each each gene set, or for each gene if \code{genesets} argument is
-  \code{NULL}, and with 2 columns: the first one '\code{rawPval}' contains
-  the raw p-values, the second one contains the FDR adjusted p-values
-  (according to the '\code{padjust_methods}' argument) and is named
-  '\code{adjPval}'.
+  \item a column with the same name as the argument \code{a} which indicates the unit.
+  \item \code{plugin_est}: the plug-in estimate.
+  \item \code{plugin_se}: the estimated standard error for the plug-in.
+  \item \code{shrinkage_est}: an estimate that is shrunk using empirical bayes via the \code{ebnm} package.
+  \item \code{shrinkage_est_se}: the estimated standard error for the shrinkage estimate.
+  \item \code{reliability}: the reliability of the shrinkage estimate.
 }
 }
 \description{

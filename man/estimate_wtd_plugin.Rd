@@ -22,7 +22,8 @@ estimate_wtd_plugin(
   separate_e = TRUE,
   separate_mu = TRUE,
   calibrate_e = FALSE,
-  calibrate_mu = FALSE
+  calibrate_mu = FALSE,
+  condition_on = NULL
 )
 }
 \arguments{
@@ -59,6 +60,8 @@ estimate_wtd_plugin(
 \item{calibrate_e}{logical flag for whether propensity scores should be calibrated after fitting}
 
 \item{calibrate_mu}{logical flag for whether mean functions should be calibrated after fitting}
+
+\item{condition_on}{a string indicating a variable within which to estimate conditional quality estimates.}
 
 \item{data}{data.frame containing the information to analyze}
 }
