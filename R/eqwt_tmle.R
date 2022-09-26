@@ -96,7 +96,6 @@ eqwt_tmle <- function(data,
 
   ##########################
   ## calculate reliability and shrunken estimators
-  out <- shrink_estimates(out, 'tmle_est', 'est_se')
   mutate(out,
          wt_ds = list(eqwt_ds))
 }

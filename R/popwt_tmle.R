@@ -74,5 +74,5 @@ popwt_tmle <- function(data,
                              calibrate_e = calibrate_e,
                              calibrate_mu = calibrate_mu,
                              truncation_pt = truncation_pt)
-  shrink_estimates(out, 'tmle_est', 'tmle_se')
+  out
 }
