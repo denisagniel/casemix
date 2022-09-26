@@ -1,11 +1,10 @@
 Package: casemix
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Nonparametric Quality Measurement Estimation
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: Denis Agniel
+Maintainer: Denis Agniel <dagniel@rand.org>
+Description: This package provides tools to use machine learning and causal inference techniques to estimate the quality of many units (or equivalently the causal effect of many treatments). It also allows the incorporation of equity concerns, where measurement is done in a population of observations that satisfy certain equity considerations.
 License: GPL (>=2)
 Encoding: UTF-8
 LazyData: true

@@ -36,6 +36,7 @@
 #' @importFrom progressr progressor
 #' @importFrom stringr str_remove
 #' @importFrom ebnm ebnm_normal
+#' @importFrom limSolve ldp
 #'
 eqwt_tmle <- function(data,
                       folds = NULL,
