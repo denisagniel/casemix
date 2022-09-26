@@ -36,6 +36,7 @@
 #' @importFrom stringr str_remove
 #' @importFrom ebnm ebnm_normal
 #' @importFrom limSolve ldp
+#' @importFrom quadprog solve.QP
 #'
 eqwt_plugin <- function(data,
                         folds = NULL,
