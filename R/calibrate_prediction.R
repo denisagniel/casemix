@@ -16,7 +16,7 @@ calibrate_prediction <- function(pred_ds, join_ds, test_ds, pred_nm, task_y, tar
       rename(yhat = ybar)
   } else {
     mod_fit <- try(mgcv::gam(ybar ~ s(predbar, k = 10), data = grp_sum, family = binomial), silent = TRUE)
-    if (class(mod_fit) == 'try-error') browser()
+    if (class(mod_fit) == 'try-error') return(test_ds %>% transmute(row_id, !!pred_nm := !!sym(pred_nm)))
 
     test_ds <- test_ds %>%
       mutate(yhat = predict(mod_fit, newdata = test_ds, type = 'response'))
