@@ -20,12 +20,12 @@ calculate_wts <- function(data, a = NULL, avals = NULL,  wvars, epsilon = 1e-6) 
   }
   phis <- paste0('phi_', avals)
   phi_reformat <- reformat_phis(data, phis, wvars, constraints_list$pmf_ds)
-  qp_sln <- try(quadprog::solve.QP(Dmat = diag(phi_reformat$phi_w/sum(phi_reformat$phi_w)),
+  qp_sln <- quadprog::solve.QP(Dmat = diag(phi_reformat$phi_w/sum(phi_reformat$phi_w)),
                                    Amat = constraints_list$Amat,
                                    bvec = constraints_list$bvec,
-                                   dvec = rep(0, nrow(phi_reformat))), silent = TRUE)
+                                   dvec = rep(0, nrow(phi_reformat)))
 
-  if (class(qp_sln) == 'try-error') browser()
+  # if (class(qp_sln) == 'try-error') browser()
   xi_ds <- select(phi_reformat, all_of(wvars))
   xi_ds <- mutate(xi_ds, equity_wt = qp_sln$solution)
   left_join(data, xi_ds, by = wvars)
