@@ -73,7 +73,6 @@ estimate_wtd_plugin <- function(ds,
                                 all_of(phis),
                                 list(pluginest = ~mean(.*!!sym(wt)),
                                      pluginse = ~sqrt(var(.*!!sym(wt))/dplyr::n())))
-    browser()
     out <- tidyr::pivot_longer(ests, cols = everything()) %>%
       tidyr::separate(name, into = c('phi', a, 'type'), sep = '_') %>%
       dplyr::select(-phi) %>%

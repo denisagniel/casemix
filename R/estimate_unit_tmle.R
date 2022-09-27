@@ -32,7 +32,6 @@ estimate_unit_tmle <- function(data, a, aval, y, w = NULL, e, mu, truncation_pt 
                            h = 1*(!!rlang::sym(a) == aval)/pmax(!!rlang::sym(e), truncation_pt)*!!rlang::sym(w),
                            mu_h = pmin(pmax(truncation_pt, !!rlang::sym(mu)), 1 - truncation_pt))
   tmle_fm <- as.formula(glue::glue('{y} ~ h + offset(qlogis(mu_h))'))
-  if (any(round(pull(tmle_ds, sym(w)), 9)) < 0) browser()
   tmle_fit <- glm(tmle_fm, data = tmle_ds, family = binomial)
   eps <- coef(tmle_fit)[2]
   tmle_ds <- dplyr::mutate(tmle_ds,
