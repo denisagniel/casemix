@@ -59,7 +59,7 @@ estimate_wtd_plugin <- function(ds,
   avals <- unique(dplyr::pull(ds, !!sym(a)))
   phis <- paste0('phi_', avals)
   if (infl_fn_only) {
-    return(phis)
+    return(ds)
   } else {
     if (is.null(condition_on)) {
       ests <- dplyr::summarise_at(ds,
