@@ -21,7 +21,7 @@ popwt_plugin(
   separate_mu = FALSE,
   calibrate_e = TRUE,
   calibrate_mu = TRUE,
-  inf_fn_only = FALSE,
+  infl_fn_only = FALSE,
   condition_on = NULL
 )
 }
@@ -58,9 +58,9 @@ popwt_plugin(
 
 \item{calibrate_mu}{logical flag for whether mean functions should be calibrated after fitting}
 
-\item{condition_on}{a string indicating a variable within which to estimate conditional quality estimates.}
-
 \item{infl_fn_only}{logical flag for whether to return a tibble with the influence function for each observation and each unit (which can be used to calculate contrasts between units).}
+
+\item{condition_on}{a string indicating a variable within which to estimate conditional quality estimates.}
 }
 \value{
 If \code{infl_fn_only = FALSE}, a `tibble` with the following columns:\itemize{

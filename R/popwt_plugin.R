@@ -49,7 +49,7 @@ popwt_plugin <- function(data,
                         separate_mu = FALSE,
                         calibrate_e = TRUE,
                         calibrate_mu = TRUE,
-                        inf_fn_only = FALSE,
+                        infl_fn_only = FALSE,
                         condition_on = NULL) {
   if (is.null(folds)) {
     ds <- make_folds(data, a, K)
@@ -74,7 +74,7 @@ popwt_plugin <- function(data,
                              calibrate_e = calibrate_e,
                              calibrate_mu = calibrate_mu,
                              truncation_pt = truncation_pt,
-                             inf_fn_only = inf_fn_only,
+                             infl_fn_only = infl_fn_only,
                              condition_on = condition_on)
   out
 }
