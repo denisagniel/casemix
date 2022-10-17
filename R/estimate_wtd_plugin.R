@@ -19,6 +19,7 @@
 #' @param separate_mu logical flag for whether mean functions for each unit should be estimated separately or in a big joint model
 #' @param calibrate_e logical flag for whether propensity scores should be calibrated after fitting
 #' @param calibrate_mu logical flag for whether mean functions should be calibrated after fitting
+#' @param infl_fn_only logical flag for whether to return a tibble with the influence function for each observation and each unit (which can be used to calculate contrasts between units).
 #' @param condition_on a string indicating a variable within which to estimate conditional quality estimates.
 #'
 estimate_wtd_plugin <- function(ds,
@@ -36,6 +37,7 @@ estimate_wtd_plugin <- function(ds,
                         separate_mu = TRUE,
                         calibrate_e = FALSE,
                         calibrate_mu = FALSE,
+                        infl_fn_only = FALSE,
                         condition_on = NULL) {
 
   ####################
@@ -56,36 +58,40 @@ estimate_wtd_plugin <- function(ds,
   # browser()
   avals <- unique(dplyr::pull(ds, !!sym(a)))
   phis <- paste0('phi_', avals)
-  if (is.null(condition_on)) {
-    ests <- dplyr::summarise_at(ds,
-                                all_of(phis),
-                                list(pluginest = ~mean(.*!!sym(wt)),
-                                     pluginse = ~sqrt(var(.*!!sym(wt))/dplyr::n())))
-    out <- tidyr::pivot_longer(ests, cols = everything()) %>%
-      tidyr::separate(name, into = c('phi', a, 'type'), sep = '_') %>%
-      dplyr::select(-phi) %>%
-      tidyr::pivot_wider(id_cols = a, names_from = type, values_from = value) %>%
-      rename(plugin_est = pluginest,
-             plugin_se = pluginse)
+  if (infl_fn_only) {
+    return(phis)
   } else {
-    ds <- group_by(ds, !!sym(condition_on))
-    ests <- dplyr::summarise_at(ds,
-                                all_of(phis),
-                                list(pluginest = ~mean(.*!!sym(wt)),
-                                     pluginse = ~sqrt(var(.*!!sym(wt))/dplyr::n())))
-    out <- tidyr::pivot_longer(ests, cols = everything()) %>%
-      tidyr::separate(name, into = c('phi', a, 'type'), sep = '_') %>%
-      dplyr::select(-phi) %>%
-      tidyr::pivot_wider(id_cols = a, names_from = type, values_from = value) %>%
-      rename(plugin_est = pluginest,
-             plugin_se = pluginse)
+    if (is.null(condition_on)) {
+      ests <- dplyr::summarise_at(ds,
+                                  all_of(phis),
+                                  list(pluginest = ~mean(.*!!sym(wt)),
+                                       pluginse = ~sqrt(var(.*!!sym(wt))/dplyr::n())))
+      out <- tidyr::pivot_longer(ests, cols = everything()) %>%
+        tidyr::separate(name, into = c('phi', a, 'type'), sep = '_') %>%
+        dplyr::select(-phi) %>%
+        tidyr::pivot_wider(id_cols = a, names_from = type, values_from = value) %>%
+        dplyr::rename(plugin_est = pluginest,
+                      plugin_se = pluginse)
+    } else {
+      ds <- group_by(ds, !!sym(condition_on))
+      ests <- dplyr::summarise_at(ds,
+                                  all_of(phis),
+                                  list(pluginest = ~mean(.*!!sym(wt)),
+                                       pluginse = ~sqrt(var(.*!!sym(wt))/dplyr::n())))
+      out <- tidyr::pivot_longer(ests, cols = everything()) %>%
+        tidyr::separate(name, into = c('phi', a, 'type'), sep = '_') %>%
+        dplyr::select(-phi) %>%
+        tidyr::pivot_wider(id_cols = a, names_from = type, values_from = value) %>%
+        dplyr::rename(plugin_est = pluginest,
+                      plugin_se = pluginse)
+    }
+
+
+
+
+
+    ##########################
+    ## calculate reliability and shrunken estimators
+    shrink_estimates(out, 'plugin_est', 'plugin_se')
   }
-
-
-
-
-
-  ##########################
-  ## calculate reliability and shrunken estimators
-  shrink_estimates(out, 'plugin_est', 'plugin_se')
 }

@@ -21,6 +21,7 @@ popwt_plugin(
   separate_mu = FALSE,
   calibrate_e = TRUE,
   calibrate_mu = TRUE,
+  inf_fn_only = FALSE,
   condition_on = NULL
 )
 }
@@ -58,16 +59,18 @@ popwt_plugin(
 \item{calibrate_mu}{logical flag for whether mean functions should be calibrated after fitting}
 
 \item{condition_on}{a string indicating a variable within which to estimate conditional quality estimates.}
+
+\item{infl_fn_only}{logical flag for whether to return a tibble with the influence function for each observation and each unit (which can be used to calculate contrasts between units).}
 }
 \value{
-A `tibble` with the following columns:\itemize{
+If \code{infl_fn_only = FALSE}, a `tibble` with the following columns:\itemize{
   \item a column with the same name as the argument \code{a} which indicates the unit.
   \item \code{plugin_est}: the plug-in estimate.
   \item \code{plugin_se}: the estimated standard error for the plug-in.
   \item \code{shrinkage_est}: an estimate that is shrunk using empirical bayes via the \code{ebnm} package.
   \item \code{shrinkage_est_se}: the estimated standard error for the shrinkage estimate.
   \item \code{reliability}: the reliability of the shrinkage estimate.
-}
+}. Else if \code{infl_fn_only = TRUE}, an augmented version of \code{data}, with influence functions for each unit denoted by columns named \code{phi_} followed by the unit name.
 }
 \description{
 Plug-in estimator for unit quality.
