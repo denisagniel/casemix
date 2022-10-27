@@ -15,14 +15,15 @@ estimate_wtd_tmle(
   wt,
   truncation_pt = 1e-07,
   adaptive = FALSE,
-  K = 2,
   lrnr = lrn("classif.ranger"),
   lrnr_e = NULL,
   lrnr_mu = NULL,
   separate_e = TRUE,
   separate_mu = TRUE,
   calibrate_e = FALSE,
-  calibrate_mu = FALSE
+  calibrate_mu = FALSE,
+  calibration_grps = 500,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -42,10 +43,6 @@ estimate_wtd_tmle(
 
 \item{truncation_pt}{a number in (0,1) to which the propensity score is truncated (from above and below)}
 
-\item{adaptive}{logical flag of whether to use the adaptive normalization of Khan and Ugander (2021)}
-
-\item{K}{optional integer identifying the number of folds for cross-fitting; required if folds = NULL}
-
 \item{lrnr}{mlr3 learner object which will be used to estimate the mean function and propensity score}
 
 \item{lrnr_e}{mlr3 learner object which will be used to estimate the propensity score (ignored if `lrnr` is specified)}
@@ -59,6 +56,10 @@ estimate_wtd_tmle(
 \item{calibrate_e}{logical flag for whether propensity scores should be calibrated after fitting}
 
 \item{calibrate_mu}{logical flag for whether mean functions should be calibrated after fitting}
+
+\item{calibration_grps}{tuning parameter for calibration, lower numbers induce more smoothness, with the default being 500}
+
+\item{verbose}{logical flag for whether to print informative messages about progress.}
 
 \item{data}{data.frame containing the information to analyze}
 }

@@ -1,4 +1,6 @@
-#' TMLE for unit quality.
+#' Targeted minimum loss-based estimation for unit quality using sample splitting.
+#'
+#' This function is used for estimating many causal effects, all standardized to a common population distribution, with a primary application to quality measurement, where many units (e.g., doctors, hospitals, schools) are measured repeatedly (e.g., on different patients), and we want to know what the average outcome would be for each unit, if they were measured on the whole popuation (e.g., if each doctor saw all patients).
 #'
 #' @param data data.frame containing the information to analyze
 #' @param folds optional string identifying the column in `data` that denotes the folds for cross-fitting
@@ -7,7 +9,6 @@
 #' @param y string identifying the column in `data` that denotes the outcome of interest
 #' @param covars string vector identifying the columns in `data` that denote the control characteristics
 #' @param truncation_pt a number in (0,1) to which the propensity score is truncated (from above and below); default is 5/sqrt(n)/log(n)
-#' @param adaptive logical flag of whether to use the adaptive normalization of Khan and Ugander (2021)
 #' @param K optional integer identifying the number of folds for cross-fitting; required if folds = NULL
 #' @param lrnr mlr3 learner object which will be used to estimate the mean function and propensity score
 #' @param lrnr_e mlr3 learner object which will be used to estimate the propensity score (ignored if `lrnr` is specified)
@@ -16,7 +17,9 @@
 #' @param separate_mu logical flag for whether mean functions for each unit should be estimated separately or in a big joint model
 #' @param calibrate_e logical flag for whether propensity scores should be calibrated after fitting
 #' @param calibrate_mu logical flag for whether mean functions should be calibrated after fitting
+#' @param calibration_grps tuning parameter for calibration, lower numbers induce more smoothness, with the default being 500
 #' @param condition_on a string indicating a variable within which to estimate conditional quality estimates.
+#' @param verbose logical flag for whether to print informative messages about progress.
 #'
 #' @return A `tibble` with the following columns:\itemize{
 #'   \item a column with the same name as the argument \code{a} which indicates the unit.
@@ -28,12 +31,13 @@
 #' }
 #' @export
 #'
-#' @import mlr3 mlr3learners mlr3extralearners dplyr purrr rlang
+#' @import mlr3 mlr3learners dplyr rlang
 #' @importFrom tibble tibble
 #' @importFrom glue glue
 #' @importFrom progressr progressor
 #' @importFrom stringr str_remove
 #' @importFrom ebnm ebnm_normal
+#' @importFrom purrr pmap_df map_df map reduce
 #'
 popwt_tmle <- function(data,
                        folds = NULL,
@@ -43,14 +47,16 @@ popwt_tmle <- function(data,
                        truncation_pt = 1e-7,
                        adaptive = FALSE,
                        K = 2,
-                       lrnr = lrn('classif.ranger'),
+                       lrnr = NULL,
                        lrnr_e = NULL,
                        lrnr_mu = NULL,
                        separate_e = FALSE,
                        separate_mu = FALSE,
                        calibrate_e = TRUE,
                        calibrate_mu = TRUE,
-                       condition_on = NULL) {
+                       calibration_grps = 500,
+                       condition_on = NULL,
+                       verbose = TRUE) {
   if (is.null(folds)) {
     ds <- make_folds(data, a, K)
     folds <- 'fold'
@@ -73,6 +79,8 @@ popwt_tmle <- function(data,
                              separate_mu = separate_mu,
                              calibrate_e = calibrate_e,
                              calibrate_mu = calibrate_mu,
-                             truncation_pt = truncation_pt)
+                           calibration_grps = calibration_grps,
+                             truncation_pt = truncation_pt,
+                           verbose = verbose)
   out
 }

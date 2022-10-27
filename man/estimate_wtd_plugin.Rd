@@ -15,7 +15,6 @@ estimate_wtd_plugin(
   wt,
   truncation_pt = 1e-07,
   adaptive = FALSE,
-  K = 2,
   lrnr = lrn("classif.ranger"),
   lrnr_e = NULL,
   lrnr_mu = NULL,
@@ -23,8 +22,11 @@ estimate_wtd_plugin(
   separate_mu = TRUE,
   calibrate_e = FALSE,
   calibrate_mu = FALSE,
+  calibration_grps = 500,
   infl_fn_only = FALSE,
-  condition_on = NULL
+  contrasts = NULL,
+  condition_on = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -44,10 +46,6 @@ estimate_wtd_plugin(
 
 \item{truncation_pt}{a number in (0,1) to which the propensity score is truncated (from above and below)}
 
-\item{adaptive}{logical flag of whether to use the adaptive normalization of Khan and Ugander (2021)}
-
-\item{K}{optional integer identifying the number of folds for cross-fitting; required if folds = NULL}
-
 \item{lrnr}{mlr3 learner object which will be used to estimate the mean function and propensity score}
 
 \item{lrnr_e}{mlr3 learner object which will be used to estimate the propensity score (ignored if `lrnr` is specified)}
@@ -62,9 +60,15 @@ estimate_wtd_plugin(
 
 \item{calibrate_mu}{logical flag for whether mean functions should be calibrated after fitting}
 
+\item{calibration_grps}{tuning parameter for calibration, lower numbers induce more smoothness, with the default being 500}
+
 \item{infl_fn_only}{logical flag for whether to return a tibble with the influence function for each observation and each unit (which can be used to calculate contrasts between units).}
 
+\item{contrasts}{tibble or data.frame encoding pre-specified contrasts between units to return}
+
 \item{condition_on}{a string indicating a variable within which to estimate conditional quality estimates.}
+
+\item{verbose}{logical flag for whether to print informative messages about progress.}
 
 \item{data}{data.frame containing the information to analyze}
 }

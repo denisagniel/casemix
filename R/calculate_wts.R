@@ -25,7 +25,6 @@ calculate_wts <- function(data, a = NULL, avals = NULL,  wvars, epsilon = 1e-6) 
                                    bvec = constraints_list$bvec,
                                    dvec = rep(0, nrow(phi_reformat)))
 
-  # if (class(qp_sln) == 'try-error') browser()
   xi_ds <- select(phi_reformat, all_of(wvars))
   xi_ds <- mutate(xi_ds, equity_wt = qp_sln$solution)
   left_join(data, xi_ds, by = wvars)

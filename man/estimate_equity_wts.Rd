@@ -20,7 +20,9 @@ estimate_equity_wts(
   epsilon = 1e-12,
   calibrate_e = TRUE,
   calibrate_mu = TRUE,
-  sub_k = 2
+  calibration_grps = 500,
+  sub_k = 2,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -54,7 +56,11 @@ estimate_equity_wts(
 
 \item{calibrate_mu}{logical flag for whether mean functions should be calibrated after fitting}
 
-\item{sub_k}{number of sub-folds to make for doing local cross-fiting for weight estimation only}
+\item{calibration_grps}{tuning parameter for calibration, lower numbers induce more smoothness, with the default being 500}
+
+\item{sub_k}{number of sub-folds to make for doing local cross-fitting for weight estimation only}
+
+\item{verbose}{logical flag for whether to print informative message about progress.}
 }
 \description{
 These weights ensure that each characteristic represented by a variable in `wvars` is balanced in the weighted population.

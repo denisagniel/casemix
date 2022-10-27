@@ -1,4 +1,4 @@
-estimate_phi <- function(data, a, y, truncation_pt = 1e-7, adaptive = FALSE) {
+estimate_phi <- function(data, a, y, truncation_pt = 1e-7) {
   avals <- unique(pull(data, !!a))
   mu_nms <- paste0('mu_', avals)
   e_nms <- paste0('e_', avals)
@@ -17,8 +17,7 @@ estimate_phi <- function(data, a, y, truncation_pt = 1e-7, adaptive = FALSE) {
                                                           e_hat = !!sym(this_e),
                                                           mu_hat = !!sym(this_mu),
                                                           w_hat = 1,
-                                                          truncation_pt = truncation_pt,
-                                                          adaptive = adaptive))
+                                                          truncation_pt = truncation_pt))
   }
   updated_data
 }

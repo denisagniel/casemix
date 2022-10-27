@@ -2,7 +2,7 @@
 % Please edit documentation in R/eqwt_plugin.R
 \name{eqwt_plugin}
 \alias{eqwt_plugin}
-\title{Plug-in estimator for equity-weighted unit quality.}
+\title{Doubly-robust estimator for unit quality standardized to an equity-weighted population, using plug-in influence-function-based estimation and sample splitting, as in double machine learning.}
 \usage{
 eqwt_plugin(
   data,
@@ -13,7 +13,6 @@ eqwt_plugin(
   wvars,
   zvars,
   truncation_pt = NULL,
-  adaptive = FALSE,
   K = 2,
   lrnr = lrn("classif.ranger"),
   lrnr_e = NULL,
@@ -23,7 +22,10 @@ eqwt_plugin(
   epsilon = 1e-12,
   calibrate_e = TRUE,
   calibrate_mu = TRUE,
-  condition_on = NULL
+  calibration_grps = 500,
+  condition_on = NULL,
+  contrasts = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -43,8 +45,6 @@ eqwt_plugin(
 
 \item{truncation_pt}{a number in (0,1) to which the propensity score is truncated (from above and below); default is 5/sqrt(n)/log(n)}
 
-\item{adaptive}{logical flag of whether to use the adaptive normalization of Khan and Ugander (2021)}
-
 \item{K}{optional integer identifying the number of folds for cross-fitting; required if folds = NULL}
 
 \item{lrnr}{mlr3 learner object which will be used to estimate the mean function and propensity score}
@@ -63,7 +63,13 @@ eqwt_plugin(
 
 \item{calibrate_mu}{logical flag for whether mean functions should be calibrated after fitting}
 
+\item{calibration_grps}{tuning parameter for calibration, lower numbers induce more smoothness, with the default being 500}
+
 \item{condition_on}{a string indicating a variable within which to estimate conditional quality estimates.}
+
+\item{contrasts}{tibble or data.frame encoding pre-specified contrasts between units to return}
+
+\item{verbose}{logical flag for whether to print informative message about progress.}
 }
 \value{
 A `tibble` with the following columns:\itemize{
@@ -76,5 +82,5 @@ A `tibble` with the following columns:\itemize{
 }
 }
 \description{
-Plug-in estimator for equity-weighted unit quality.
+This function is used for estimating many causal effects, all standardized to a common population distribution that satisfies certain equity properties, with a primary application to quality measurement, where many units (e.g., doctors, hospitals, schools) are measured repeatedly (e.g., on different patients), and we want to know what the average outcome would be for each unit, if they were measured on a popuation that had equal representation for observations with certain characteristics.
 }

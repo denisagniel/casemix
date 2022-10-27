@@ -7,8 +7,8 @@
 #'
 #' @export
 make_folds <- function(data, unit_id, K, fold_name = 'fold') {
-  data <- dplyr::group_by(data, !!rlang::sym(unit_id))
-  data <- dplyr::mutate(data, !!fold_name := sample(1:K, size = dplyr::n(), replace = TRUE))
-  data <- dplyr::ungroup(data)
-  data
+  if (fold_name %in% colnames(data)) {
+    warning(glue::glue('The column {fold_name} was already present in the dataset and is being overwritten.'))
+  }
+  dplyr::mutate(data, !!fold_name := sample(1:K, size = dplyr::n(), replace = TRUE))
 }

@@ -1,4 +1,4 @@
-#' Simulate quality data
+#' Simulate quality data, used for the example in the vignette.
 #'
 #' @param p number of units (e.g., providers)
 #' @param n vector of length `p` specifying number of per-unit measurements (e.g., number of patients per provider)

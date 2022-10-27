@@ -17,10 +17,12 @@
 #' @param epsilon positive scalar that indicates the amount that the optimization of equity balance constraints is allowed to deviate from the required constraints
 #' @param calibrate_e logical flag for whether propensity scores should be calibrated after fitting
 #' @param calibrate_mu logical flag for whether mean functions should be calibrated after fitting
-#' @param sub_k number of sub-folds to make for doing local cross-fiting for weight estimation only
+#' @param calibration_grps tuning parameter for calibration, lower numbers induce more smoothness, with the default being 500
+#' @param sub_k number of sub-folds to make for doing local cross-fitting for weight estimation only
+#' @param verbose logical flag for whether to print informative message about progress.
 #'
 #' @export
-estimate_equity_wts <- function(data, folds, id, wvars, zvars, a, y, lrnr, lrnr_e = NULL, lrnr_mu = NULL, separate_e = TRUE, separate_mu = TRUE, epsilon = 1e-12, calibrate_e = TRUE, calibrate_mu = TRUE, sub_k = 2) {
+estimate_equity_wts <- function(data, folds, id, wvars, zvars, a, y, lrnr, lrnr_e = NULL, lrnr_mu = NULL, separate_e = TRUE, separate_mu = TRUE, epsilon = 1e-12, calibrate_e = TRUE, calibrate_mu = TRUE, calibration_grps = 500, sub_k = 2, verbose = TRUE) {
   ##############################
   ## find the folds in the data so that weight estimation can be done on separate folds
   #################################
@@ -47,7 +49,9 @@ estimate_equity_wts <- function(data, folds, id, wvars, zvars, a, y, lrnr, lrnr_
                                  epsilon,
                                  calibrate_e,
                                  calibrate_mu,
-                                 K = sub_k))
+                                 calibration_grps = calibration_grps,
+                                 K = sub_k,
+                                 verbose = verbose))
 }
 
 fold_wt <- function(data,
@@ -66,7 +70,9 @@ fold_wt <- function(data,
                     epsilon,
                     calibrate_e,
                     calibrate_mu,
-                    K = 2) {
+                    calibration_grps,
+                    K = 2,
+                    verbose = TRUE) {
 
   train_data <- data %>%
     filter(!!sym(folds) != out_fold)
@@ -83,15 +89,16 @@ fold_wt <- function(data,
   #######################
   ## estimate mu (mean functions) and e (propensity scores) on sub-folds
   if (!is.null(lrnr)) {
+    if (!is.null(lrnr_mu) | !is.null(lrnr_e)) stop('If `lrnr` is non-null, `lrnr_mu` and `lrnr_e` should be NULL.')
     train_data <- left_join(train_data,
-                            estimate_e(train_data, 'subfold', id, c(wvars, zvars), a, lrnr, separate = separate_e, calibrate = calibrate_e), by = id)
+                            estimate_e(train_data, 'subfold', id, c(wvars, zvars), a, lrnr, separate = separate_e, calibrate = calibrate_e, calibration_grps = calibration_grps, verbose = verbose), by = id)
     train_data <- left_join(train_data,
-                            estimate_mu(train_data, 'subfold', id, c(wvars, zvars), y, a, lrnr, separate = separate_mu, calibrate = calibrate_mu), by = id)
+                            estimate_mu(train_data, 'subfold', id, c(wvars, zvars), y, a, lrnr, separate = separate_mu, calibrate = calibrate_mu, calibration_grps = calibration_grps, verbose = verbose), by = id)
   } else {
     train_data <- left_join(train_data,
-                            estimate_e(train_data, 'subfold', id, c(wvars, zvars), a, lrnr_e, separate = separate_e, calibrate = calibrate_e), by = id)
+                            estimate_e(train_data, 'subfold', id, c(wvars, zvars), a, lrnr_e, separate = separate_e, calibrate = calibrate_e, calibration_grps = calibration_grps, verbose = verbose), by = id)
     train_data <- left_join(train_data,
-                            estimate_mu(train_data, 'subfold', id, c(wvars, zvars), y, a, lrnr_mu, separate = separate_mu, calibrate = calibrate_mu), by = id)
+                            estimate_mu(train_data, 'subfold', id, c(wvars, zvars), y, a, lrnr_mu, separate = separate_mu, calibrate = calibrate_mu, calibration_grps = calibration_grps, verbose = verbose), by = id)
   }
 
 

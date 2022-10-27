@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulate_data.R
 \name{simulate_data}
 \alias{simulate_data}
-\title{Simulate quality data}
+\title{Simulate quality data, used for the example in the vignette.}
 \usage{
 simulate_data(p, n, pi_x, mu_x, qq)
 }
@@ -18,5 +18,5 @@ simulate_data(p, n, pi_x, mu_x, qq)
 \item{qq}{vector of length `p` specifying the true unit-specific quality}
 }
 \description{
-Simulate quality data
+Simulate quality data, used for the example in the vignette.
 }

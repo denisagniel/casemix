@@ -2,7 +2,7 @@
 % Please edit documentation in R/popwt_tmle.R
 \name{popwt_tmle}
 \alias{popwt_tmle}
-\title{TMLE for unit quality.}
+\title{Targeted minimum loss-based estimation for unit quality using sample splitting.}
 \usage{
 popwt_tmle(
   data,
@@ -14,14 +14,16 @@ popwt_tmle(
   truncation_pt = 1e-07,
   adaptive = FALSE,
   K = 2,
-  lrnr = lrn("classif.ranger"),
+  lrnr = NULL,
   lrnr_e = NULL,
   lrnr_mu = NULL,
   separate_e = FALSE,
   separate_mu = FALSE,
   calibrate_e = TRUE,
   calibrate_mu = TRUE,
-  condition_on = NULL
+  calibration_grps = 500,
+  condition_on = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -39,8 +41,6 @@ popwt_tmle(
 
 \item{truncation_pt}{a number in (0,1) to which the propensity score is truncated (from above and below); default is 5/sqrt(n)/log(n)}
 
-\item{adaptive}{logical flag of whether to use the adaptive normalization of Khan and Ugander (2021)}
-
 \item{K}{optional integer identifying the number of folds for cross-fitting; required if folds = NULL}
 
 \item{lrnr}{mlr3 learner object which will be used to estimate the mean function and propensity score}
@@ -57,7 +57,11 @@ popwt_tmle(
 
 \item{calibrate_mu}{logical flag for whether mean functions should be calibrated after fitting}
 
+\item{calibration_grps}{tuning parameter for calibration, lower numbers induce more smoothness, with the default being 500}
+
 \item{condition_on}{a string indicating a variable within which to estimate conditional quality estimates.}
+
+\item{verbose}{logical flag for whether to print informative messages about progress.}
 }
 \value{
 A `tibble` with the following columns:\itemize{
@@ -70,5 +74,5 @@ A `tibble` with the following columns:\itemize{
 }
 }
 \description{
-TMLE for unit quality.
+This function is used for estimating many causal effects, all standardized to a common population distribution, with a primary application to quality measurement, where many units (e.g., doctors, hospitals, schools) are measured repeatedly (e.g., on different patients), and we want to know what the average outcome would be for each unit, if they were measured on the whole popuation (e.g., if each doctor saw all patients).
 }
