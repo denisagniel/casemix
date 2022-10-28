@@ -60,7 +60,8 @@ estimate_wtd_tmle <- function(ds,
                                            e = glue('e_{.}'),
                                            mu = glue('mu_{.}'),
                                            truncation_pt = truncation_pt,
-                                           condition_on = condition_on)
+                                           condition_on = condition_on,
+                                           separate = separate_mu)
   )
 
 

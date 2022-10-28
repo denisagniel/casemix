@@ -13,7 +13,8 @@ estimate_unit_tmle(
   e,
   mu,
   truncation_pt = 1e-12,
-  condition_on = NULL
+  condition_on = NULL,
+  separate = TRUE
 )
 }
 \arguments{
@@ -32,6 +33,8 @@ estimate_unit_tmle(
 \item{mu}{string identifying the column in `data` that denotes the mean function}
 
 \item{condition_on}{a string indicating a variable within which to estimate conditional quality estimates.}
+
+\item{separate}{logical indicating whether TMLE adjustment model should be fit only using data from the unit of interest}
 }
 \description{
 TMLE estimator for unit quality.

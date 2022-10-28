@@ -8,10 +8,11 @@
 #' @param e string identifying the column in `data` that denotes the propensity score
 #' @param mu string identifying the column in `data` that denotes the mean function
 #' @param condition_on a string indicating a variable within which to estimate conditional quality estimates.
+#' @param separate logical indicating whether TMLE adjustment model should be fit only using data from the unit of interest
 #'
 #' @export
 
-estimate_unit_tmle <- function(data, a, aval, y, w = NULL, e, mu, truncation_pt = 1e-12, condition_on = NULL) {
+estimate_unit_tmle <- function(data, a, aval, y, w = NULL, e, mu, truncation_pt = 1e-12, condition_on = NULL, separate = TRUE) {
   if (is.null(w)) {
     data <- dplyr::mutate(data, w = 1)
     w <- 'w'
@@ -32,7 +33,12 @@ estimate_unit_tmle <- function(data, a, aval, y, w = NULL, e, mu, truncation_pt 
                            h = 1*(!!rlang::sym(a) == aval)/pmax(!!rlang::sym(e), truncation_pt)*!!rlang::sym(w),
                            mu_h = pmin(pmax(truncation_pt, !!rlang::sym(mu)), 1 - truncation_pt))
   tmle_fm <- as.formula(glue::glue('{y} ~ h + offset(qlogis(mu_h))'))
-  tmle_fit <- glm(tmle_fm, data = tmle_ds, family = binomial)
+  if (separate) {
+    fit_ds <- dplyr::filter(tmle_ds, a == 1)
+  } else {
+    fit_ds <- tmle_ds
+  }
+  tmle_fit <- glm(tmle_fm, data = fit_ds, family = binomial)
   eps <- coef(tmle_fit)[2]
   tmle_ds <- dplyr::mutate(tmle_ds,
                            muhat_star = plogis(qlogis(mu_h) + eps*h))
