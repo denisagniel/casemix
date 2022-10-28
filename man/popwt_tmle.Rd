@@ -12,7 +12,6 @@ popwt_tmle(
   y,
   covars,
   truncation_pt = 1e-07,
-  adaptive = FALSE,
   K = 2,
   lrnr = NULL,
   lrnr_e = NULL,

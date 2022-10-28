@@ -14,7 +14,6 @@ estimate_wtd_plugin(
   zvars,
   wt,
   truncation_pt = 1e-07,
-  adaptive = FALSE,
   lrnr = lrn("classif.ranger"),
   lrnr_e = NULL,
   lrnr_mu = NULL,

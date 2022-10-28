@@ -12,7 +12,6 @@ popwt_plugin(
   y,
   covars,
   truncation_pt = NULL,
-  adaptive = FALSE,
   K = 2,
   lrnr = NULL,
   lrnr_e = NULL,

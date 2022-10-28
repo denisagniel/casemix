@@ -26,8 +26,7 @@ estimate_unit_tmle <- function(data, a, aval, y, w = NULL, e, mu, truncation_pt 
                                                      e_hat = !!rlang::sym(e),
                                                      w_hat = !!rlang::sym(w),
                                                      mu_hat = !!rlang::sym(mu),
-                                                     truncation_pt = truncation_pt,
-                                                     adaptive = FALSE
+                                                     truncation_pt = truncation_pt
                            ))
   tmle_ds <- dplyr::mutate(if_data,
                            h = 1*(!!rlang::sym(a) == aval)/pmax(!!rlang::sym(e), truncation_pt)*!!rlang::sym(w),
