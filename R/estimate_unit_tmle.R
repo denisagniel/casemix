@@ -40,6 +40,7 @@ estimate_unit_tmle <- function(data, a, aval, y, w = NULL, e, mu, truncation_pt 
   }
   tmle_fit <- glm(tmle_fm, data = fit_ds, family = binomial)
   eps <- coef(tmle_fit)[2]
+  if (is.na(eps)) eps <- 0
   tmle_ds <- dplyr::mutate(tmle_ds,
                            muhat_star = plogis(qlogis(mu_h) + eps*h))
 
