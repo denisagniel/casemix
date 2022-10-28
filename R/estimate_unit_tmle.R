@@ -7,10 +7,11 @@
 #' @param w string identifying the column in `data` that denotes the equity weight
 #' @param e string identifying the column in `data` that denotes the propensity score
 #' @param mu string identifying the column in `data` that denotes the mean function
+#' @param condition_on a string indicating a variable within which to estimate conditional quality estimates.
 #'
 #' @export
 
-estimate_unit_tmle <- function(data, a, aval, y, w = NULL, e, mu, truncation_pt = 1e-12) {
+estimate_unit_tmle <- function(data, a, aval, y, w = NULL, e, mu, truncation_pt = 1e-12, condition_on = NULL) {
   if (is.null(w)) {
     data <- dplyr::mutate(data, w = 1)
     w <- 'w'
@@ -37,11 +38,21 @@ estimate_unit_tmle <- function(data, a, aval, y, w = NULL, e, mu, truncation_pt 
   tmle_ds <- dplyr::mutate(tmle_ds,
                            muhat_star = plogis(qlogis(mu_h) + eps*h))
 
-  out <- dplyr::summarise(tmle_ds,
-                   !!a := aval,
-                   plugin_est = mean(inf_fn),
-                   tmle_est = sum(muhat_star*!!rlang::sym(w))/sum(!!rlang::sym(w)),
-                   tmle_se = sqrt(var(inf_fn)/dplyr::n()))
+  if (!is.null(condition_on)) {
+    tmle_ds <- dplyr::group_by(tmle_ds, !!sym(condition_on))
+    out <- dplyr::summarise(tmle_ds,
+                            !!a := aval,
+                            plugin_est = mean(inf_fn),
+                            tmle_est = sum(muhat_star*!!rlang::sym(w))/sum(!!rlang::sym(w)),
+                            tmle_se = sqrt(var(inf_fn)/dplyr::n()))
+  } else {
+    out <- dplyr::summarise(tmle_ds,
+                            !!a := aval,
+                            plugin_est = mean(inf_fn),
+                            tmle_est = sum(muhat_star*!!rlang::sym(w))/sum(!!rlang::sym(w)),
+                            tmle_se = sqrt(var(inf_fn)/dplyr::n()))
+  }
+
   # if (out$est_se > 0.1) browser()
   out
 }

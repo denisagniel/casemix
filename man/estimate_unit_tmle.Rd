@@ -4,7 +4,17 @@
 \alias{estimate_unit_tmle}
 \title{TMLE estimator for unit quality.}
 \usage{
-estimate_unit_tmle(data, a, aval, y, w = NULL, e, mu, truncation_pt = 1e-12)
+estimate_unit_tmle(
+  data,
+  a,
+  aval,
+  y,
+  w = NULL,
+  e,
+  mu,
+  truncation_pt = 1e-12,
+  condition_on = NULL
+)
 }
 \arguments{
 \item{data}{data.frame containing the information to analyze}
@@ -20,6 +30,8 @@ estimate_unit_tmle(data, a, aval, y, w = NULL, e, mu, truncation_pt = 1e-12)
 \item{e}{string identifying the column in `data` that denotes the propensity score}
 
 \item{mu}{string identifying the column in `data` that denotes the mean function}
+
+\item{condition_on}{a string indicating a variable within which to estimate conditional quality estimates.}
 }
 \description{
 TMLE estimator for unit quality.

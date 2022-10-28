@@ -23,6 +23,7 @@ estimate_wtd_tmle(
   calibrate_e = FALSE,
   calibrate_mu = FALSE,
   calibration_grps = 500,
+  condition_on = NULL,
   verbose = FALSE
 )
 }
@@ -58,6 +59,8 @@ estimate_wtd_tmle(
 \item{calibrate_mu}{logical flag for whether mean functions should be calibrated after fitting}
 
 \item{calibration_grps}{tuning parameter for calibration, lower numbers induce more smoothness, with the default being 500}
+
+\item{condition_on}{a string indicating a variable within which to estimate conditional quality estimates.}
 
 \item{verbose}{logical flag for whether to print informative messages about progress.}
 

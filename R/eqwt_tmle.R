@@ -81,6 +81,7 @@ eqwt_tmle <- function(data,
                             calibrate_e = calibrate_e,
                             calibrate_mu = calibrate_mu,
                             calibration_grps = calibration_grps,
+                            condition_on = condition_on,
                             sub_k = K,
                             verbose = verbose)
 
@@ -101,6 +102,7 @@ eqwt_tmle <- function(data,
                              calibrate_e = calibrate_e,
                              calibrate_mu = calibrate_mu,
                            calibration_grps = calibration_grps,
+                           condition_on = condition_on,
                              truncation_pt = truncation_pt,
                            verbose = verbose)
 
